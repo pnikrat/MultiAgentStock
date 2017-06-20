@@ -1,6 +1,8 @@
 package agents;
 
 import jade.core.Agent;
+import jade.core.AID;
+import utils.DfAgentUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +13,11 @@ import java.util.List;
 public class StockTrader extends Agent {
 
     private List<String> startupArguments = new ArrayList<String>();
+    private DfAgentUtils utils;
+    private AID sessionManager;
+    private AID historian;
 
+    @Override
     protected void setup() {
         System.out.println("Stock trader agent " + getAID().getName() + " is ready");
         try {
@@ -22,10 +28,16 @@ public class StockTrader extends Agent {
             doDelete();
         }
         printStartupArguments();
+        utils = new DfAgentUtils(this);
+        utils.registerService("trader", "tradingAgent");
+        sessionManager = utils.searchForService("sessionManager", "sessionAgent")[0];
+        historian = utils.searchForService("historian", "historianAgent")[0];
     }
 
+    @Override
     protected void takeDown() {
         System.out.println("Stock trader agent going down");
+        utils.deregisterService();
     }
 
     private void collectStartupArguments() {

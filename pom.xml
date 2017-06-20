@@ -26,7 +26,10 @@
                     <arguments>
                         <argument>-gui</argument>
                         <argument>-agents</argument>
-                        <argument>trader1:agents.StockTrader(NASA, 150.99, 250.99)</argument>
+                        <argument>trader1:agents.StockTrader(NASA, 150.99, 250.99);
+                            trader2:agents.StockTrader(DUP, 1500.77, 2456.78);
+                            manager:agents.SessionManager;
+                            historian:agents.Historian</argument>
                     </arguments>
                 </configuration>
             </plugin>
