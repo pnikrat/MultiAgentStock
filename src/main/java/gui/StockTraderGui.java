@@ -1,6 +1,7 @@
 package gui;
 
 import agents.StockTrader;
+import models.Asset;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -16,6 +17,9 @@ public class StockTraderGui extends JFrame {
 
     private JLabel maximumLoss, desiredGain, currentMoney, tradingStatus, inventory;
     private String maximumLossBase, desiredGainBase, currentMoneyBase, tradingStatusBase, inventoryBase;
+    private JTable inventoryTable;
+    private AssetInventoryTableModel inventoryTableModel;
+    private JScrollPane scrollPane;
 
     public StockTraderGui(StockTrader guiAgent) {
         super(guiAgent.getLocalName());
@@ -64,12 +68,16 @@ public class StockTraderGui extends JFrame {
         });
     }
 
+    public void addAsset(Asset asset) {
+        inventoryTableModel.addRow(asset);
+    }
+
     private void initLabelsBaseTexts() {
         maximumLossBase = "Maximum loss: ";
         desiredGainBase = "Desired gain: ";
         currentMoneyBase = "Current money: ";
         tradingStatusBase = "Trading: ";
-        inventoryBase = "Stock in inventory: ";
+        inventoryBase = "Assets in inventory: ";
     }
 
     private void initPanel() {
@@ -79,6 +87,9 @@ public class StockTraderGui extends JFrame {
         pane.add(verticalBox);
         defineComponents();
         addComponents(verticalBox);
+
+        defineTable();
+        verticalBox.add(scrollPane);
     }
 
     private void defineComponents() {
@@ -111,6 +122,13 @@ public class StockTraderGui extends JFrame {
         box.add(currentMoney);
         box.add(tradingStatus);
         box.add(inventory);
+    }
+
+    private void defineTable() {
+        inventoryTableModel = new AssetInventoryTableModel();
+        inventoryTable = new JTable(inventoryTableModel);
+        inventoryTable.setPreferredScrollableViewportSize(new Dimension(500,200));
+        scrollPane = new JScrollPane(inventoryTable);
     }
 
     private void addListeners() {

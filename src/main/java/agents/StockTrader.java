@@ -3,6 +3,8 @@ package agents;
 import gui.StockTraderGui;
 import jade.core.Agent;
 import jade.core.AID;
+import models.Asset;
+import models.MarketOfAssets;
 import utils.DfAgentUtils;
 
 import java.math.BigDecimal;
@@ -26,7 +28,7 @@ public class StockTrader extends Agent {
 
     @Override
     protected void setup() {
-        System.out.println("Stock trader agent " + getAID().getName() + " is ready");
+        System.out.println("Asset trader agent " + getAID().getName() + " is ready");
         try {
             collectStartupArguments();
         }
@@ -46,11 +48,18 @@ public class StockTrader extends Agent {
         setDesiredGain(startupArguments.get(1));
         setCurrentMoney(startupArguments.get(2));
         setTradingStatus(false);
+
+        MarketOfAssets market = new MarketOfAssets();
+        List<Asset> a = market.getAssetsOnMarket();
+        for (Asset x : a)
+            gui.addAsset(x);
+        Asset assetWithValue = new Asset("PEKAO", new BigDecimal("35.32"), 14);
+        gui.addAsset(assetWithValue);
     }
 
     @Override
     protected void takeDown() {
-        System.out.println("Stock trader agent going down");
+        System.out.println("Asset trader agent going down");
         utils.deregisterService();
     }
 
