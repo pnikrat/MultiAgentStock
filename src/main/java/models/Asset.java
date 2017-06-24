@@ -1,11 +1,12 @@
 package models;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
  * Created by Przemek on 2017-06-21.
  */
-public class Asset {
+public class Asset implements Serializable {
     private String shortName;
     private int numberOfUnits;
     private String unitValueRepresentation;
@@ -54,5 +55,15 @@ public class Asset {
 
     public String getUnitValueRepresentation() {
         return unitValueRepresentation;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Asset) {
+            Asset otherAsset = (Asset) obj;
+            if (this.shortName.equals(otherAsset.getShortName()))
+                return true;
+        }
+        return false;
     }
 }

@@ -35,6 +35,15 @@ public class SessionManagerGui extends JFrame {
         inventoryTableModel.addRow(asset);
     }
 
+    public int sellAsset(Asset asset, int units) {
+        int soldUnits = inventoryTableModel.removeAssetUnits(asset, units);
+        return soldUnits;
+    }
+
+    public BigDecimal getCurrentAssetValue(Asset assetToCheck) {
+        return inventoryTableModel.getCurrentAssetValue(assetToCheck);
+    }
+
     private void fillMarketWithStock() {
         MarketOfAssets market = new MarketOfAssets();
         List<Asset> assets = market.getAssetsOnMarket();

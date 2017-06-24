@@ -5,7 +5,10 @@ import behaviours.TradingPeriodBehaviour;
 import gui.SessionManagerGui;
 import jade.core.AID;
 import jade.core.Agent;
+import models.Asset;
 import utils.DfAgentUtils;
+
+import java.math.BigDecimal;
 
 /**
  * Created by Przemek on 2017-06-20.
@@ -55,5 +58,14 @@ public class SessionManager extends Agent {
 
     public AID[] getStockTraders() {
         return stockTraders;
+    }
+
+    public int sellStock(Asset toSell, int units) {
+        int soldUnits = gui.sellAsset(toSell, units);
+        return soldUnits;
+    }
+
+    public BigDecimal getCurrentAssetValue(Asset assetToCheck) {
+        return gui.getCurrentAssetValue(assetToCheck);
     }
 }

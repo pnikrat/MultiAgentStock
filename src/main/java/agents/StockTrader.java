@@ -1,8 +1,12 @@
 package agents;
 
+import behaviours.SubmitOrdersBehaviour;
 import gui.StockTraderGui;
 import jade.core.Agent;
 import jade.core.AID;
+import jade.domain.FIPANames;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 import models.Asset;
 import models.MarketOfAssets;
 import utils.DfAgentUtils;
@@ -25,6 +29,7 @@ public class StockTrader extends Agent {
     private BigDecimal desiredGain;
     private BigDecimal currentMoney;
     private boolean tradingStatus;
+    private MessageTemplate tradingTemplate;
 
     @Override
     protected void setup() {
@@ -48,6 +53,9 @@ public class StockTrader extends Agent {
         setDesiredGain(startupArguments.get(1));
         setCurrentMoney(startupArguments.get(2));
         setTradingStatus(false);
+
+        setTradingTemplateAttributes();
+        addBehaviour(new SubmitOrdersBehaviour(this, tradingTemplate));
     }
 
     @Override
@@ -55,6 +63,11 @@ public class StockTrader extends Agent {
         System.out.println("Asset trader agent going down");
         utils.deregisterService();
         gui.dispose();
+    }
+
+    public void setTradingStatus(boolean tradingStatus) {
+        this.tradingStatus = tradingStatus;
+        gui.setTradingStatus(tradingStatus);
     }
 
     private void collectStartupArguments() {
@@ -87,8 +100,12 @@ public class StockTrader extends Agent {
         gui.setCurrentMoney(currentMoney);
     }
 
-    private void setTradingStatus(boolean tradingStatus) {
-        this.tradingStatus = tradingStatus;
-        gui.setTradingStatus(tradingStatus);
+    private void setTradingTemplateAttributes() {
+        tradingTemplate = MessageTemplate.and(
+                MessageTemplate.and(
+                        MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
+                        MessageTemplate.MatchPerformative(ACLMessage.CFP)),
+                MessageTemplate.MatchConversationId("stock-trading"));
     }
+
 }
