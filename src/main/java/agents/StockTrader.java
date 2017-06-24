@@ -48,13 +48,6 @@ public class StockTrader extends Agent {
         setDesiredGain(startupArguments.get(1));
         setCurrentMoney(startupArguments.get(2));
         setTradingStatus(false);
-
-        MarketOfAssets market = new MarketOfAssets();
-        List<Asset> a = market.getAssetsOnMarket();
-        for (Asset x : a)
-            gui.addAsset(x);
-        Asset assetWithValue = new Asset("PEKAO", new BigDecimal("35.32"), 14);
-        gui.addAsset(assetWithValue);
     }
 
     @Override
