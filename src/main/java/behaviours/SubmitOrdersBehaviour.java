@@ -7,9 +7,11 @@ import jade.domain.FIPAAgentManagement.NotUnderstoodException;
 import jade.domain.FIPAAgentManagement.RefuseException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.lang.acl.UnreadableException;
 import jade.proto.ContractNetResponder;
 import models.Asset;
 import models.Order;
+import models.TradingResult;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -40,5 +42,23 @@ public class SubmitOrdersBehaviour extends ContractNetResponder {
             reply.setContentObject(order);
         } catch (IOException e) {}
         return reply;
+    }
+
+    @Override
+    protected ACLMessage handleAcceptProposal(ACLMessage cfp, ACLMessage propose, ACLMessage accept) throws FailureException {
+        TradingResult result = null;
+        try {
+            result = (TradingResult) accept.getContentObject();
+        }
+        catch (UnreadableException e) {
+            e.printStackTrace();
+        }
+        if (result != null) {
+            myAgentConcrete.addBoughtStock(result);
+            ACLMessage reply = accept.createReply();
+            reply.setPerformative(ACLMessage.INFORM);
+            return reply;
+        }
+        throw new FailureException("WrongObject");
     }
 }

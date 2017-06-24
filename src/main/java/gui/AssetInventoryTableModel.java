@@ -81,13 +81,14 @@ public class AssetInventoryTableModel extends AbstractTableModel {
         fireTableRowsInserted(currentSize, currentSize);
     }
 
-    public int removeAssetUnits(Asset assetToSell, int units) {
+    public int removeAssetUnits(Asset assetToRemove, int units) {
         int soldUnits = units;
         for (Asset a : assets) {
-            if (a.equals(assetToSell)) {
+            if (a.equals(assetToRemove)) {
                 Integer rowIndex = getRowByShortName(a.getShortName());
                 if (a.getNumberOfUnits() - units < 0) {
                     soldUnits = a.getNumberOfUnits();
+                    //TODO: remove row here
                     if (rowIndex != null)
                         setValueAt(0, rowIndex, 1);
                 }
@@ -100,12 +101,15 @@ public class AssetInventoryTableModel extends AbstractTableModel {
         return soldUnits;
     }
 
-    public void addAssetUnits(Asset assetToBuy, int units) {
+    public void addAssetUnits(Asset assetToAdd) {
         for (Asset a : assets) {
-            if (a.equals(assetToBuy)) {
-                a.setNumberOfUnits(a.getNumberOfUnits() + units);
+            if (a.equals(assetToAdd)) {
+                Integer rowIndex = getRowByShortName(a.getShortName());
+                if (rowIndex != null)
+                    setValueAt(assetToAdd.getNumberOfUnits(), rowIndex, 1);
             }
         }
+        addRow(assetToAdd);
     }
 
     public BigDecimal getCurrentAssetValue(Asset assetToCheck) {

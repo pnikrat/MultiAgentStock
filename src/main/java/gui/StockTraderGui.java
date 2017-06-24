@@ -8,6 +8,7 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.math.BigDecimal;
 
 /**
  * Created by Przemek on 2017-06-20.
@@ -70,6 +71,10 @@ public class StockTraderGui extends JFrame {
 
     public void addAsset(Asset asset) {
         inventoryTableModel.addRow(asset);
+    }
+
+    public void addBoughtAsset(Asset asset) {
+        inventoryTableModel.addAssetUnits(asset);
     }
 
     private void initLabelsBaseTexts() {

@@ -61,8 +61,7 @@ public class SessionManager extends Agent {
     }
 
     public int sellStock(Asset toSell, int units) {
-        int soldUnits = gui.sellAsset(toSell, units);
-        return soldUnits;
+        return gui.sellAsset(toSell, units);
     }
 
     public BigDecimal getCurrentAssetValue(Asset assetToCheck) {

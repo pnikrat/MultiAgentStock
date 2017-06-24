@@ -9,6 +9,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import models.Asset;
 import models.MarketOfAssets;
+import models.TradingResult;
 import utils.DfAgentUtils;
 
 import java.math.BigDecimal;
@@ -70,6 +71,12 @@ public class StockTrader extends Agent {
         gui.setTradingStatus(tradingStatus);
     }
 
+    public void addBoughtStock(TradingResult result) {
+        Asset boughtAsset = result.getAssetTraded();
+        gui.addBoughtAsset(boughtAsset);
+        deduceMoney(boughtAsset);
+    }
+
     private void collectStartupArguments() {
         Object[] args = getArguments();
         for (Object x : args)
@@ -108,4 +115,14 @@ public class StockTrader extends Agent {
                 MessageTemplate.MatchConversationId("stock-trading"));
     }
 
+    private void deduceMoney(Asset boughtAsset) {
+        BigDecimal valueOfBoughtAsset = boughtAsset.getUnitValue();
+        int units = boughtAsset.getNumberOfUnits();
+        BigDecimal deductedMoney = valueOfBoughtAsset.multiply(new BigDecimal(units));
+        setCurrentMoney(getCurrentMoney().subtract(deductedMoney).toString());
+    }
+
+    private BigDecimal getCurrentMoney() {
+        return currentMoney;
+    }
 }
