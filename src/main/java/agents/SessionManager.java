@@ -1,6 +1,7 @@
 package agents;
 
 
+import behaviours.TradingPeriodBehaviour;
 import gui.SessionManagerGui;
 import jade.core.AID;
 import jade.core.Agent;
@@ -14,23 +15,45 @@ public class SessionManager extends Agent {
     private AID[] stockTraders;
     private AID historian;
     private SessionManagerGui gui;
+    private boolean tradingStatus;
 
     @Override
     protected void setup() {
         System.out.println("Session manager agent " + getAID().getName() + " is ready");
 
+        tradingStatus = false;
+
         utils = new DfAgentUtils(this);
         utils.registerService("sessionManager", "sessionAgent");
-        stockTraders = utils.searchForService("trader", "tradingAgent");
+        scanForStockTraders();
         historian = utils.searchForService("historian", "historianAgent")[0];
 
         gui = new SessionManagerGui();
         gui.showGui();
+
+        addBehaviour(new TradingPeriodBehaviour(this, 30000));
     }
 
     @Override
     protected void takeDown() {
         System.out.println("Session manager agent going down");
         utils.deregisterService();
+        gui.dispose();
+    }
+
+    public void setTradingStatus(boolean tradingStatus) {
+        this.tradingStatus = tradingStatus;
+    }
+
+    public boolean getTradingStatus() {
+        return tradingStatus;
+    }
+
+    public void scanForStockTraders() {
+        stockTraders = utils.searchForService("trader", "tradingAgent");
+    }
+
+    public AID[] getStockTraders() {
+        return stockTraders;
     }
 }

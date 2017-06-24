@@ -54,6 +54,7 @@ public class StockTrader extends Agent {
     protected void takeDown() {
         System.out.println("Asset trader agent going down");
         utils.deregisterService();
+        gui.dispose();
     }
 
     private void collectStartupArguments() {
