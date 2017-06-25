@@ -3,13 +3,9 @@ package behaviours;
 import agents.StockTrader;
 import jade.core.AID;
 import jade.core.Agent;
-import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.OneShotBehaviour;
-import jade.core.behaviours.WakerBehaviour;
 import jade.domain.FIPAAgentManagement.FailureException;
 import jade.domain.FIPAAgentManagement.NotUnderstoodException;
 import jade.domain.FIPAAgentManagement.RefuseException;
-import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
@@ -22,16 +18,16 @@ import java.io.IOException;
 /**
  * Created by Przemek on 2017-06-24.
  */
-public class SubmitOrdersBehaviour extends ContractNetResponder {
+public class SubmitOrders extends ContractNetResponder {
 
     private StockTrader myAgentConcrete;
     private ACLMessage priceCheckMessage;
     private ACLMessage savedCfp;
     private Asset tradedAsset;
     private AID CfpSender;
-    private SubmitOrdersBehaviour parentBehaviour = this;
+    private SubmitOrders parentBehaviour = this;
 
-    public SubmitOrdersBehaviour(Agent a, MessageTemplate mt) {
+    public SubmitOrders(Agent a, MessageTemplate mt) {
         super(a, mt);
         myAgentConcrete = (StockTrader) a;
     }
@@ -49,7 +45,7 @@ public class SubmitOrdersBehaviour extends ContractNetResponder {
 //        myAgent.addBehaviour(new OneShotBehaviour() {
 //            @Override
 //            public void action() {
-//                myAgent.addBehaviour(new PriceCheckBehaviour(myAgentConcrete, priceCheckMessage, parentBehaviour));
+//                myAgent.addBehaviour(new PriceCheck(myAgentConcrete, priceCheckMessage, parentBehaviour));
 //                System.out.println("One shot done");
 //            }
 //        });

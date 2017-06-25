@@ -14,12 +14,12 @@ import java.util.Vector;
 /**
  * Created by Przemek on 2017-06-24.
  */
-public class CollectOrdersBehaviour extends ContractNetInitiator {
+public class CollectOrders extends ContractNetInitiator {
 
     private SessionManager myAgentConcrete;
     private Order singleOrderTradeResult;
 
-    public CollectOrdersBehaviour(Agent a, ACLMessage cfp) {
+    public CollectOrders(Agent a, ACLMessage cfp) {
         super(a, cfp);
         myAgentConcrete = (SessionManager) a;
     }

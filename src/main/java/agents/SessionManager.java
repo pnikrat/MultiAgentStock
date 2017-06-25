@@ -1,7 +1,7 @@
 package agents;
 
 
-import behaviours.TradingPeriodBehaviour;
+import behaviours.ScheduleTradingPeriod;
 import gui.SessionManagerGui;
 import jade.core.AID;
 import jade.core.Agent;
@@ -33,7 +33,7 @@ public class SessionManager extends Agent {
         gui = new SessionManagerGui();
         gui.showGui();
 
-        addBehaviour(new TradingPeriodBehaviour(this, 20000));
+        addBehaviour(new ScheduleTradingPeriod(this, 20000));
     }
 
     @Override

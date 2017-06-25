@@ -2,7 +2,6 @@ package behaviours;
 
 import agents.StockTrader;
 import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
@@ -32,7 +31,7 @@ public class SchedulePriceCheck extends TickerBehaviour {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        myAgentConcrete.addBehaviour(new PriceCheckBehaviour(myAgentConcrete, priceCheckMessage));
+        myAgentConcrete.addBehaviour(new PriceCheck(myAgentConcrete, priceCheckMessage));
     }
 
     private void setPriceCheckMessageAttributes() {

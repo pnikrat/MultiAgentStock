@@ -1,7 +1,7 @@
 package agents;
 
 import behaviours.SchedulePriceCheck;
-import behaviours.SubmitOrdersBehaviour;
+import behaviours.SubmitOrders;
 import gui.StockTraderGui;
 import jade.core.Agent;
 import jade.core.AID;
@@ -59,13 +59,10 @@ public class StockTrader extends Agent {
         gui.addAsset(new Asset("BZW", new BigDecimal("34.67"), 25));
         MarketOfAssets market = new MarketOfAssets();
         assetPrices = market.getAssetsOnMarket();
-        for (Asset a : assetPrices) {
-            a.setUnitValue(a.getUnitValue().add(BigDecimal.TEN));
-        }
 
         setTradingTemplateAttributes();
         addBehaviour(new SchedulePriceCheck(this, 10000));
-        addBehaviour(new SubmitOrdersBehaviour(this, tradingTemplate));
+        addBehaviour(new SubmitOrders(this, tradingTemplate));
     }
 
     @Override
@@ -111,15 +108,6 @@ public class StockTrader extends Agent {
         Object[] args = getArguments();
         for (Object x : args)
             startupArguments.add((String) x);
-    }
-
-    private boolean checkIfArgumentsEmpty() {
-        return startupArguments.size() == 0;
-    }
-
-    private void printStartupArguments() {
-        for (String x : startupArguments)
-            System.out.println(x + " ");
     }
 
     private void setMaximumLoss(String maximumLoss) {

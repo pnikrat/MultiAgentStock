@@ -10,12 +10,12 @@ import jade.lang.acl.ACLMessage;
 /**
  * Created by Przemek on 2017-06-24.
  */
-public class TradingPeriodBehaviour extends TickerBehaviour {
+public class ScheduleTradingPeriod extends TickerBehaviour {
 
     private SessionManager myAgentConcrete;
     private ACLMessage cfp;
 
-    public TradingPeriodBehaviour(Agent a, int tickTime) {
+    public ScheduleTradingPeriod(Agent a, int tickTime) {
         super(a, tickTime);
         myAgentConcrete = (SessionManager) a;
     }
@@ -26,7 +26,7 @@ public class TradingPeriodBehaviour extends TickerBehaviour {
             System.out.println("Trading point started");
             createCallForProposals("stock-trading", "TradingOpen");
             addCfpReceivers();
-            myAgent.addBehaviour(new CollectOrdersBehaviour(myAgent, cfp));
+            myAgent.addBehaviour(new CollectOrders(myAgent, cfp));
         }
     }
 

@@ -19,10 +19,10 @@ import java.util.List;
 /**
  * Created by Przemek on 2017-06-25.
  */
-public class PriceInformBehaviour extends AchieveREResponder {
+public class PriceInform extends AchieveREResponder {
     private Historian myAgentConcrete;
 
-    public PriceInformBehaviour(Agent a, MessageTemplate mt) {
+    public PriceInform(Agent a, MessageTemplate mt) {
         super(a, mt);
         myAgentConcrete = (Historian) a;
     }

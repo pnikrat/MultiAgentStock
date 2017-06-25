@@ -14,11 +14,11 @@ import java.util.List;
 /**
  * Created by Przemek on 2017-06-25.
  */
-public class PriceCheckBehaviour extends AchieveREInitiator {
+public class PriceCheck extends AchieveREInitiator {
     private StockTrader myAgentConcrete;
-    //private SubmitOrdersBehaviour parentBehaviour;
+    //private SubmitOrders parentBehaviour;
 
-    public PriceCheckBehaviour(Agent a, ACLMessage msg) {
+    public PriceCheck(Agent a, ACLMessage msg) {
         super(a, msg);
         myAgentConcrete = (StockTrader) a;
         //this.parentBehaviour = parentBehaviour;

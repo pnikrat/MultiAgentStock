@@ -1,7 +1,6 @@
 package agents;
 
-import behaviours.PriceInformBehaviour;
-import jade.core.AID;
+import behaviours.PriceInform;
 import jade.core.Agent;
 import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
@@ -32,7 +31,7 @@ public class Historian extends Agent {
         setStartupPrices();
 
         setPriceCheckTemplateAttributes();
-        addBehaviour(new PriceInformBehaviour(this, priceCheckTemplate));
+        addBehaviour(new PriceInform(this, priceCheckTemplate));
     }
 
     @Override
