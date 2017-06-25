@@ -45,7 +45,7 @@ public class SubmitOrdersBehaviour extends ContractNetResponder {
             myAgentConcrete.setTradingStatus(true);
 
         tradedAsset = new Asset("BZW");
-        priceCheckMessage = setPriceCheckMessageAttributes(tradedAsset);
+//        priceCheckMessage = setPriceCheckMessageAttributes(tradedAsset);
 //        myAgent.addBehaviour(new OneShotBehaviour() {
 //            @Override
 //            public void action() {
@@ -106,15 +106,15 @@ public class SubmitOrdersBehaviour extends ContractNetResponder {
         throw new FailureException("WrongObject");
     }
 
-    private ACLMessage setPriceCheckMessageAttributes(Asset assetToCheckPrice) {
-        ACLMessage priceCheckMessage = new ACLMessage(ACLMessage.REQUEST);
-        priceCheckMessage.addReceiver(myAgentConcrete.getHistorian());
-        priceCheckMessage.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-        try {
-            priceCheckMessage.setContentObject(assetToCheckPrice);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return priceCheckMessage;
-    }
+//    private ACLMessage setPriceCheckMessageAttributes(Asset assetToCheckPrice) {
+//        ACLMessage priceCheckMessage = new ACLMessage(ACLMessage.REQUEST);
+//        priceCheckMessage.addReceiver(myAgentConcrete.getHistorian());
+//        priceCheckMessage.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+//        try {
+//            priceCheckMessage.setContentObject(assetToCheckPrice);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return priceCheckMessage;
+//    }
 }

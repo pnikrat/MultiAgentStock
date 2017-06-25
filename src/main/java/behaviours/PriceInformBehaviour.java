@@ -12,7 +12,9 @@ import jade.proto.AchieveREResponder;
 import models.Asset;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Created by Przemek on 2017-06-25.
@@ -27,18 +29,20 @@ public class PriceInformBehaviour extends AchieveREResponder {
 
     @Override
     protected ACLMessage handleRequest(ACLMessage request) throws NotUnderstoodException, RefuseException {
-        Asset assetToPriceCheck = null;
+        List<Asset> assetsToPriceCheck = null;
         try {
-            assetToPriceCheck = (Asset) request.getContentObject();
+            assetsToPriceCheck = (List<Asset>) request.getContentObject();
         } catch (UnreadableException e) {
             e.printStackTrace();
         }
         ACLMessage reply = request.createReply();
-        if (assetToPriceCheck != null) {
+        if (assetsToPriceCheck != null) {
             reply.setPerformative(ACLMessage.INFORM);
-            BigDecimal currentPrice = myAgentConcrete.getAssetCurrentPrice(assetToPriceCheck);
+            for (Asset a : assetsToPriceCheck) {
+                a.setUnitValue(myAgentConcrete.getAssetCurrentPrice(a));
+            }
             try {
-                reply.setContentObject(currentPrice);
+                reply.setContentObject((Serializable) assetsToPriceCheck);
             } catch (IOException e) {
                 e.printStackTrace();
             }

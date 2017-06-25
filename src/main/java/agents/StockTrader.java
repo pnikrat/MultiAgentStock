@@ -1,5 +1,6 @@
 package agents;
 
+import behaviours.SchedulePriceCheck;
 import behaviours.SubmitOrdersBehaviour;
 import gui.StockTraderGui;
 import jade.core.Agent;
@@ -8,6 +9,7 @@ import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import models.Asset;
+import models.MarketOfAssets;
 import models.Order;
 import utils.DfAgentUtils;
 
@@ -30,6 +32,7 @@ public class StockTrader extends Agent {
     private BigDecimal checkedPrice;
     private boolean tradingStatus;
     private MessageTemplate tradingTemplate;
+    private List<Asset> assetPrices;
 
     @Override
     protected void setup() {
@@ -54,8 +57,14 @@ public class StockTrader extends Agent {
         setTradingStatus(false);
 
         gui.addAsset(new Asset("BZW", new BigDecimal("34.67"), 25));
+        MarketOfAssets market = new MarketOfAssets();
+        assetPrices = market.getAssetsOnMarket();
+        for (Asset a : assetPrices) {
+            a.setUnitValue(a.getUnitValue().add(BigDecimal.TEN));
+        }
 
         setTradingTemplateAttributes();
+        addBehaviour(new SchedulePriceCheck(this, 10000));
         addBehaviour(new SubmitOrdersBehaviour(this, tradingTemplate));
     }
 
@@ -68,6 +77,17 @@ public class StockTrader extends Agent {
 
     public AID getHistorian() {
         return historian;
+    }
+
+    public List<Asset> getAssetPrices() {
+        return assetPrices;
+    }
+
+    public void setCheckedPrice(BigDecimal checkedPrice, Asset assetChecked) {
+        for (Asset a : assetPrices) {
+            if (a.equals(assetChecked))
+                a.setUnitValue(checkedPrice);
+        }
     }
 
     public void setTradingStatus(boolean tradingStatus) {
@@ -143,11 +163,5 @@ public class StockTrader extends Agent {
         return currentMoney;
     }
 
-    public BigDecimal getCheckedPrice() {
-        return checkedPrice;
-    }
 
-    public void setCheckedPrice(BigDecimal checkedPrice) {
-        this.checkedPrice = checkedPrice;
-    }
 }
