@@ -8,8 +8,7 @@ import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import models.Asset;
-import models.MarketOfAssets;
-import models.TradingResult;
+import models.Order;
 import utils.DfAgentUtils;
 
 import java.math.BigDecimal;
@@ -55,6 +54,8 @@ public class StockTrader extends Agent {
         setCurrentMoney(startupArguments.get(2));
         setTradingStatus(false);
 
+        gui.addAsset(new Asset("BZW", new BigDecimal("34.67"), 25));
+
         setTradingTemplateAttributes();
         addBehaviour(new SubmitOrdersBehaviour(this, tradingTemplate));
     }
@@ -71,10 +72,16 @@ public class StockTrader extends Agent {
         gui.setTradingStatus(tradingStatus);
     }
 
-    public void addBoughtStock(TradingResult result) {
-        Asset boughtAsset = result.getAssetTraded();
+    public void addBoughtStock(Order result) {
+        Asset boughtAsset = result.getAssetToTrade();
         gui.addBoughtAsset(boughtAsset);
         deduceMoney(boughtAsset);
+    }
+
+    public void removeSoldStock(Order result) {
+        Asset soldAsset = result.getAssetToTrade();
+        gui.removeSoldAsset(soldAsset);
+        addMoney(soldAsset);
     }
 
     private void collectStartupArguments() {
@@ -120,6 +127,13 @@ public class StockTrader extends Agent {
         int units = boughtAsset.getNumberOfUnits();
         BigDecimal deductedMoney = valueOfBoughtAsset.multiply(new BigDecimal(units));
         setCurrentMoney(getCurrentMoney().subtract(deductedMoney).toString());
+    }
+
+    private void addMoney(Asset soldAsset) {
+        BigDecimal valueOfSoldAsset = soldAsset.getUnitValue();
+        int units = soldAsset.getNumberOfUnits();
+        BigDecimal addedMoney = valueOfSoldAsset.multiply(new BigDecimal(units));
+        setCurrentMoney(getCurrentMoney().add(addedMoney).toString());
     }
 
     private BigDecimal getCurrentMoney() {

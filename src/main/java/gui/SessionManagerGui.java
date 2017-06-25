@@ -40,6 +40,10 @@ public class SessionManagerGui extends JFrame {
         return soldUnits;
     }
 
+    public void buyAsset(Asset asset) {
+        inventoryTableModel.addAssetUnits(asset);
+    }
+
     public BigDecimal getCurrentAssetValue(Asset assetToCheck) {
         return inventoryTableModel.getCurrentAssetValue(assetToCheck);
     }

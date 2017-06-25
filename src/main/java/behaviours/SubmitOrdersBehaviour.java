@@ -11,10 +11,8 @@ import jade.lang.acl.UnreadableException;
 import jade.proto.ContractNetResponder;
 import models.Asset;
 import models.Order;
-import models.TradingResult;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 
 /**
  * Created by Przemek on 2017-06-24.
@@ -33,8 +31,13 @@ public class SubmitOrdersBehaviour extends ContractNetResponder {
         String title = cfp.getContent();
         if (title.equals("TradingOpen"))
             myAgentConcrete.setTradingStatus(true);
-        boolean isBuy = true;
-        Asset stock = new Asset("PKN");
+        //buying
+//        boolean isBuy = true;
+//        Asset stock = new Asset("PKN");
+//        Order order = new Order(stock, isBuy, 10);
+        //selling
+        boolean isBuy = false;
+        Asset stock = new Asset("BZW");
         Order order = new Order(stock, isBuy, 10);
         ACLMessage reply = cfp.createReply();
         reply.setPerformative(ACLMessage.PROPOSE);
@@ -46,15 +49,19 @@ public class SubmitOrdersBehaviour extends ContractNetResponder {
 
     @Override
     protected ACLMessage handleAcceptProposal(ACLMessage cfp, ACLMessage propose, ACLMessage accept) throws FailureException {
-        TradingResult result = null;
+        Order result = null;
         try {
-            result = (TradingResult) accept.getContentObject();
+            result = (Order) accept.getContentObject();
         }
         catch (UnreadableException e) {
             e.printStackTrace();
         }
         if (result != null) {
-            myAgentConcrete.addBoughtStock(result);
+            boolean isBuy = result.isBuy();
+            if (isBuy)
+                myAgentConcrete.addBoughtStock(result);
+            else
+                myAgentConcrete.removeSoldStock(result);
             ACLMessage reply = accept.createReply();
             reply.setPerformative(ACLMessage.INFORM);
             return reply;

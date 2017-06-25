@@ -81,6 +81,12 @@ public class AssetInventoryTableModel extends AbstractTableModel {
         fireTableRowsInserted(currentSize, currentSize);
     }
 
+    public void removeRow(Asset assetRow) {
+        int currentSize = assets.size();
+        assets.remove(assetRow);
+        fireTableRowsDeleted(currentSize, currentSize);
+    }
+
     public int removeAssetUnits(Asset assetToRemove, int units) {
         int soldUnits = units;
         for (Asset a : assets) {
@@ -88,9 +94,7 @@ public class AssetInventoryTableModel extends AbstractTableModel {
                 Integer rowIndex = getRowByShortName(a.getShortName());
                 if (a.getNumberOfUnits() - units < 0) {
                     soldUnits = a.getNumberOfUnits();
-                    //TODO: remove row here
-                    if (rowIndex != null)
-                        setValueAt(0, rowIndex, 1);
+                    removeRow(assetToRemove);
                 }
                 else {
                     if (rowIndex != null)
@@ -105,8 +109,10 @@ public class AssetInventoryTableModel extends AbstractTableModel {
         for (Asset a : assets) {
             if (a.equals(assetToAdd)) {
                 Integer rowIndex = getRowByShortName(a.getShortName());
-                if (rowIndex != null)
-                    setValueAt(assetToAdd.getNumberOfUnits(), rowIndex, 1);
+                if (rowIndex != null) {
+                    setValueAt(a.getNumberOfUnits() + assetToAdd.getNumberOfUnits(), rowIndex, 1);
+                    return;
+                }
             }
         }
         addRow(assetToAdd);

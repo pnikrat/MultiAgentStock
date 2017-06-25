@@ -7,7 +7,6 @@ import jade.lang.acl.UnreadableException;
 import jade.proto.ContractNetInitiator;
 import models.Asset;
 import models.Order;
-import models.TradingResult;
 
 import java.io.IOException;
 import java.util.Vector;
@@ -18,7 +17,7 @@ import java.util.Vector;
 public class CollectOrdersBehaviour extends ContractNetInitiator {
 
     private SessionManager myAgentConcrete;
-    private TradingResult singleOrderTradeResult;
+    private Order singleOrderTradeResult;
 
     public CollectOrdersBehaviour(Agent a, ACLMessage cfp) {
         super(a, cfp);
@@ -34,15 +33,13 @@ public class CollectOrdersBehaviour extends ContractNetInitiator {
             e.printStackTrace();
         }
         if (orderFromProposal != null) {
-            Asset tradedAsset = orderFromProposal.getAssetToTrade();
-            int orderedUnits = orderFromProposal.getUnitsToTrade();
             boolean isBuy = orderFromProposal.isBuy();
-            boolean tradeSuccessful = false;
+            boolean tradeSuccessful = true;
             if (isBuy) {
-                tradeSuccessful = handleBuyOrder(tradedAsset, orderedUnits);
+                tradeSuccessful = handleBuyOrder(orderFromProposal);
             }
             else {
-                handleSellOrder(tradedAsset, orderedUnits);
+                handleSellOrder(orderFromProposal);
             }
             ACLMessage reply = propose.createReply();
             if (tradeSuccessful) {
@@ -58,18 +55,33 @@ public class CollectOrdersBehaviour extends ContractNetInitiator {
         }
     }
 
-    private boolean handleBuyOrder(Asset tradedAsset, int orderedUnits) {
+    private boolean handleBuyOrder(Order buyOrder) {
+        Asset tradedAsset = buyOrder.getAssetToTrade();
+        int orderedUnits = buyOrder.getUnitsToTrade();
         int soldUnits = myAgentConcrete.sellStock(tradedAsset, orderedUnits);
         tradedAsset.setUnitValue(myAgentConcrete.getCurrentAssetValue(tradedAsset));
         if (soldUnits != 0 && tradedAsset.getUnitValue() != null) {
             tradedAsset.setNumberOfUnits(soldUnits);
-            singleOrderTradeResult = new TradingResult(tradedAsset, soldUnits);
+            singleOrderTradeResult = new Order(tradedAsset, buyOrder.isBuy(), soldUnits);
             return true;
         }
         return false;
     }
 
-    private void handleSellOrder(Asset tradedAsset, int orderedUnits) {
+    private void handleSellOrder(Order sellOrder) {
+        Asset tradedAsset = sellOrder.getAssetToTrade();
+        tradedAsset.setNumberOfUnits(sellOrder.getUnitsToTrade());
+        myAgentConcrete.buyStock(tradedAsset);
+        tradedAsset.setUnitValue(myAgentConcrete.getCurrentAssetValue(tradedAsset));
+        if (tradedAsset.getUnitValue() != null) {
+            singleOrderTradeResult = new Order(tradedAsset, sellOrder.isBuy(), tradedAsset.getNumberOfUnits());
+        }
+    }
 
+    @Override
+    public int onEnd() {
+        System.out.println("TRADING POINT FINISHED");
+        myAgentConcrete.setTradingStatus(false);
+        return super.onEnd();
     }
 }

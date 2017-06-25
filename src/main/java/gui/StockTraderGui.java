@@ -77,6 +77,10 @@ public class StockTraderGui extends JFrame {
         inventoryTableModel.addAssetUnits(asset);
     }
 
+    public void removeSoldAsset(Asset asset) {
+        inventoryTableModel.removeAssetUnits(asset, asset.getNumberOfUnits());
+    }
+
     private void initLabelsBaseTexts() {
         maximumLossBase = "Maximum loss: ";
         desiredGainBase = "Desired gain: ";

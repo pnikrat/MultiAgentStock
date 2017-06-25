@@ -64,6 +64,10 @@ public class SessionManager extends Agent {
         return gui.sellAsset(toSell, units);
     }
 
+    public void buyStock(Asset toBuy) {
+        gui.buyAsset(toBuy);
+    }
+
     public BigDecimal getCurrentAssetValue(Asset assetToCheck) {
         return gui.getCurrentAssetValue(assetToCheck);
     }
