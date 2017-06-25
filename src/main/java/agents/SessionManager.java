@@ -27,14 +27,13 @@ public class SessionManager extends Agent {
         tradingStatus = false;
 
         utils = new DfAgentUtils(this);
-        utils.registerService("sessionManager", "sessionAgent");
         scanForStockTraders();
         historian = utils.searchForService("historian", "historianAgent")[0];
 
         gui = new SessionManagerGui();
         gui.showGui();
 
-        addBehaviour(new TradingPeriodBehaviour(this, 30000));
+        addBehaviour(new TradingPeriodBehaviour(this, 10000));
     }
 
     @Override

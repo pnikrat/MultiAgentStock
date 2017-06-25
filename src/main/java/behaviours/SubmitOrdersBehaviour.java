@@ -1,10 +1,15 @@
 package behaviours;
 
 import agents.StockTrader;
+import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.WakerBehaviour;
 import jade.domain.FIPAAgentManagement.FailureException;
 import jade.domain.FIPAAgentManagement.NotUnderstoodException;
 import jade.domain.FIPAAgentManagement.RefuseException;
+import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
@@ -20,6 +25,11 @@ import java.io.IOException;
 public class SubmitOrdersBehaviour extends ContractNetResponder {
 
     private StockTrader myAgentConcrete;
+    private ACLMessage priceCheckMessage;
+    private ACLMessage savedCfp;
+    private Asset tradedAsset;
+    private AID CfpSender;
+    private SubmitOrdersBehaviour parentBehaviour = this;
 
     public SubmitOrdersBehaviour(Agent a, MessageTemplate mt) {
         super(a, mt);
@@ -28,17 +38,27 @@ public class SubmitOrdersBehaviour extends ContractNetResponder {
 
     @Override
     protected ACLMessage handleCfp(ACLMessage cfp) throws RefuseException, FailureException, NotUnderstoodException {
+        savedCfp = cfp;
         String title = cfp.getContent();
+        CfpSender = cfp.getSender();
         if (title.equals("TradingOpen"))
             myAgentConcrete.setTradingStatus(true);
+
+        tradedAsset = new Asset("BZW");
+        priceCheckMessage = setPriceCheckMessageAttributes(tradedAsset);
+//        myAgent.addBehaviour(new OneShotBehaviour() {
+//            @Override
+//            public void action() {
+//                myAgent.addBehaviour(new PriceCheckBehaviour(myAgentConcrete, priceCheckMessage, parentBehaviour));
+//                System.out.println("One shot done");
+//            }
+//        });
         //buying
 //        boolean isBuy = true;
-//        Asset stock = new Asset("PKN");
 //        Order order = new Order(stock, isBuy, 10);
         //selling
         boolean isBuy = false;
-        Asset stock = new Asset("BZW");
-        Order order = new Order(stock, isBuy, 10);
+        Order order = new Order(tradedAsset, isBuy, 10);
         ACLMessage reply = cfp.createReply();
         reply.setPerformative(ACLMessage.PROPOSE);
         try {
@@ -46,6 +66,23 @@ public class SubmitOrdersBehaviour extends ContractNetResponder {
         } catch (IOException e) {}
         return reply;
     }
+
+//    public ACLMessage myHandleCfp(ACLMessage cfp) {
+//        Asset stock = tradedAsset;
+//        System.out.println(myAgentConcrete.getCheckedPrice());
+//        //buying
+////        boolean isBuy = true;
+////        Order order = new Order(stock, isBuy, 10);
+//        //selling
+//        boolean isBuy = false;
+//        Order order = new Order(stock, isBuy, 10);
+//        ACLMessage reply = cfp.createReply();
+//        reply.setPerformative(ACLMessage.PROPOSE);
+//        try {
+//            reply.setContentObject(order);
+//        } catch (IOException e) {}
+//        return reply;
+//    }
 
     @Override
     protected ACLMessage handleAcceptProposal(ACLMessage cfp, ACLMessage propose, ACLMessage accept) throws FailureException {
@@ -67,5 +104,17 @@ public class SubmitOrdersBehaviour extends ContractNetResponder {
             return reply;
         }
         throw new FailureException("WrongObject");
+    }
+
+    private ACLMessage setPriceCheckMessageAttributes(Asset assetToCheckPrice) {
+        ACLMessage priceCheckMessage = new ACLMessage(ACLMessage.REQUEST);
+        priceCheckMessage.addReceiver(myAgentConcrete.getHistorian());
+        priceCheckMessage.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+        try {
+            priceCheckMessage.setContentObject(assetToCheckPrice);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return priceCheckMessage;
     }
 }

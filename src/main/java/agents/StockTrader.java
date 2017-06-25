@@ -22,12 +22,12 @@ public class StockTrader extends Agent {
 
     private List<String> startupArguments = new ArrayList<String>();
     private DfAgentUtils utils;
-    private AID sessionManager;
     private AID historian;
     private StockTraderGui gui;
     private BigDecimal maximumLoss;
     private BigDecimal desiredGain;
     private BigDecimal currentMoney;
+    private BigDecimal checkedPrice;
     private boolean tradingStatus;
     private MessageTemplate tradingTemplate;
 
@@ -46,7 +46,6 @@ public class StockTrader extends Agent {
 
         utils = new DfAgentUtils(this);
         utils.registerService("trader", "tradingAgent");
-        sessionManager = utils.searchForService("sessionManager", "sessionAgent")[0];
         historian = utils.searchForService("historian", "historianAgent")[0];
 
         setMaximumLoss(startupArguments.get(0));
@@ -65,6 +64,10 @@ public class StockTrader extends Agent {
         System.out.println("Asset trader agent going down");
         utils.deregisterService();
         gui.dispose();
+    }
+
+    public AID getHistorian() {
+        return historian;
     }
 
     public void setTradingStatus(boolean tradingStatus) {
@@ -138,5 +141,13 @@ public class StockTrader extends Agent {
 
     private BigDecimal getCurrentMoney() {
         return currentMoney;
+    }
+
+    public BigDecimal getCheckedPrice() {
+        return checkedPrice;
+    }
+
+    public void setCheckedPrice(BigDecimal checkedPrice) {
+        this.checkedPrice = checkedPrice;
     }
 }
