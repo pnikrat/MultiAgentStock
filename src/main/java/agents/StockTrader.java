@@ -1,6 +1,5 @@
 package agents;
 
-import behaviours.SchedulePriceCheck;
 import behaviours.SubmitOrders;
 import gui.StockTraderGui;
 import jade.core.Agent;
@@ -61,7 +60,6 @@ public class StockTrader extends Agent {
         assetPrices = market.getAssetsOnMarket();
 
         setTradingTemplateAttributes();
-        addBehaviour(new SchedulePriceCheck(this, 10000));
         addBehaviour(new SubmitOrders(this, tradingTemplate));
     }
 

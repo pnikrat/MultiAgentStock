@@ -27,7 +27,7 @@
                         <argument>-gui</argument>
                         <argument>-agents</argument>
                         <!--Maximum loss, Desired gain, Starting money (all with dot as decimal separator) -->
-                        <argument>trader1:agents.StockTrader(100.00, 2560.99, 250.99);
+                        <argument>trader1:agents.StockTrader(2000.00, 8500.00, 5101.77);
                             trader2:agents.StockTrader(1500.00, 6500.00, 2456.78);
                             manager:agents.SessionManager;
                             historian:agents.Historian</argument>

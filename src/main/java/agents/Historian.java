@@ -76,10 +76,10 @@ public class Historian extends Agent {
 
     private void setPriceCheckTemplateAttributes() {
         priceInformTemplate = MessageTemplate.and(
-                MessageTemplate.and(
-                    MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST),
-                    MessageTemplate.MatchPerformative(ACLMessage.REQUEST)),
-                MessageTemplate.MatchConversationId("price-check"));
+                    MessageTemplate.and(
+                            MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST),
+                            MessageTemplate.MatchPerformative(ACLMessage.REQUEST)),
+                    MessageTemplate.not(MessageTemplate.MatchConversationId("archive-prices")));
     }
 
     private void setArchiveStockDataTemplateAttributes() {
