@@ -32,7 +32,6 @@ public class ArchiveStockData extends AchieveREResponder {
         } catch (UnreadableException e) {
             e.printStackTrace();
         }
-        //archive data here
         myAgentConcrete.archiveData(newPricesToArchive);
         ACLMessage reply = request.createReply();
         reply.setPerformative(ACLMessage.INFORM);

@@ -115,6 +115,6 @@ public class CollectOrders extends ContractNetInitiator {
     }
 
     private void setNewPrices() {
-        myAgentConcrete.changeAssetPrice(myAgentConcrete.getAssets().get(0), new BigDecimal("-5.0"));
+        myAgentConcrete.changeAssetPrice(myAgentConcrete.getAssets().get(2), new BigDecimal("-5.0"));
     }
 }

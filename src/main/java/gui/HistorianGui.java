@@ -31,6 +31,7 @@ public class HistorianGui extends JFrame {
         pricesChart = new XYChartBuilder().width(600).height(400).title("Stock prices history")
                 .xAxisTitle("Trading session [-]").yAxisTitle("Price [$]").build();
         pricesChart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideE);
+        //pricesChart.getStyler().setXAxisTickMarkSpacingHint(15);
         startupData.addAll(assets);
         initChartData();
         initChartSeries();
@@ -42,6 +43,15 @@ public class HistorianGui extends JFrame {
         this.add(pricesChartPanel, BorderLayout.CENTER);
         this.pack();
         this.setVisible(true);
+    }
+
+    public void addNewPrices(final List<Asset> newPricesToArchive) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                updateChartData(newPricesToArchive);
+                pricesChartPanel.repaint();
+            }
+        });
     }
 
     private void initChartData() {
@@ -56,6 +66,14 @@ public class HistorianGui extends JFrame {
     private void initChartSeries() {
         for (Map.Entry<String, List<BigDecimal>> entry : chartYData.entrySet()) {
             pricesChart.addSeries(entry.getKey(), chartXData, entry.getValue());
+        }
+    }
+
+    private void updateChartData(List<Asset> newData) {
+        chartXData.add(chartXData.get(chartXData.size() - 1) + 1);
+        for (Asset a : newData) {
+            chartYData.get(a.getShortName()).add(a.getUnitValue());
+            pricesChart.updateXYSeries(a.getShortName(), chartXData, chartYData.get(a.getShortName()), null);
         }
     }
 }

@@ -53,7 +53,9 @@ public class Historian extends Agent {
     }
 
     public void archiveData(List<Asset> newPricesToArchive) {
-
+        assets.clear();
+        assets.addAll(newPricesToArchive);
+        gui.addNewPrices(newPricesToArchive);
     }
 
     private void setStartupPrices() {
