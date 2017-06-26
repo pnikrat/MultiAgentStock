@@ -2,13 +2,19 @@ package behaviours;
 
 import agents.SessionManager;
 import jade.core.Agent;
+import jade.core.behaviours.OneShotBehaviour;
+import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
+import jade.proto.AchieveREInitiator;
 import jade.proto.ContractNetInitiator;
 import models.Asset;
 import models.Order;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -18,6 +24,7 @@ public class CollectOrders extends ContractNetInitiator {
 
     private SessionManager myAgentConcrete;
     private Order singleOrderTradeResult;
+    private ACLMessage archiveStockDataMessage;
 
     public CollectOrders(Agent a, ACLMessage cfp) {
         super(a, cfp);
@@ -82,6 +89,32 @@ public class CollectOrders extends ContractNetInitiator {
     public int onEnd() {
         System.out.println("TRADING POINT FINISHED");
         myAgentConcrete.setTradingStatus(false);
+        myAgentConcrete.addBehaviour(new OneShotBehaviour() {
+            @Override
+            public void action() {
+                setArchiveStockDataMessageAttributes();
+                //TODO:set new prices here. For now lower by 5 each time
+                setNewPrices();
+                List<Asset> newPricesToArchive = myAgentConcrete.getAssets();
+                try {
+                    archiveStockDataMessage.setContentObject((Serializable) newPricesToArchive);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                myAgentConcrete.addBehaviour(new AchieveREInitiator(myAgentConcrete, archiveStockDataMessage));
+            }
+        });
         return super.onEnd();
+    }
+
+    private void setArchiveStockDataMessageAttributes() {
+        archiveStockDataMessage = new ACLMessage(ACLMessage.REQUEST);
+        archiveStockDataMessage.addReceiver(myAgentConcrete.getHistorian());
+        archiveStockDataMessage.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+        archiveStockDataMessage.setConversationId("archive-prices");
+    }
+
+    private void setNewPrices() {
+        myAgentConcrete.changeAssetPrice(myAgentConcrete.getAssets().get(0), new BigDecimal("-5.0"));
     }
 }

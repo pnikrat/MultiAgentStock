@@ -9,6 +9,7 @@ import jade.proto.AchieveREInitiator;
 import models.Asset;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,8 +27,7 @@ public class PriceCheck extends AchieveREInitiator {
 
     @Override
     protected void handleInform(ACLMessage inform) {
-        System.out.println("Received Inform");
-        List<Asset> currentPrices = null;
+        List<Asset> currentPrices = new ArrayList<Asset>();
         try {
             currentPrices = (List<Asset>) inform.getContentObject();
         } catch (UnreadableException e) {

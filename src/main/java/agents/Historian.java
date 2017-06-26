@@ -1,5 +1,6 @@
 package agents;
 
+import behaviours.ArchiveStockData;
 import behaviours.PriceInform;
 import jade.core.Agent;
 import jade.domain.FIPANames;
@@ -19,7 +20,8 @@ import java.util.List;
 public class Historian extends Agent {
     private DfAgentUtils utils;
     private List<Asset> assets = new ArrayList<Asset>();
-    private MessageTemplate priceCheckTemplate;
+    private MessageTemplate priceInformTemplate;
+    private MessageTemplate archiveStockDataTemplate;
 
     @Override
     protected void setup() {
@@ -31,7 +33,9 @@ public class Historian extends Agent {
         setStartupPrices();
 
         setPriceCheckTemplateAttributes();
-        addBehaviour(new PriceInform(this, priceCheckTemplate));
+        addBehaviour(new PriceInform(this, priceInformTemplate));
+        setArchiveStockDataTemplateAttributes();
+        addBehaviour(new ArchiveStockData(this, archiveStockDataTemplate));
     }
 
     @Override
@@ -61,8 +65,18 @@ public class Historian extends Agent {
     }
 
     private void setPriceCheckTemplateAttributes() {
-        priceCheckTemplate = MessageTemplate.and(
-                MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST),
-                MessageTemplate.MatchPerformative(ACLMessage.REQUEST));
+        priceInformTemplate = MessageTemplate.and(
+                MessageTemplate.and(
+                    MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST),
+                    MessageTemplate.MatchPerformative(ACLMessage.REQUEST)),
+                MessageTemplate.MatchConversationId("price-check"));
+    }
+
+    private void setArchiveStockDataTemplateAttributes() {
+        archiveStockDataTemplate = MessageTemplate.and(
+                MessageTemplate.and(
+                        MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST),
+                        MessageTemplate.MatchPerformative(ACLMessage.REQUEST)),
+                MessageTemplate.MatchConversationId("archive-prices"));
     }
 }

@@ -9,6 +9,7 @@ import models.Asset;
 import utils.DfAgentUtils;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Created by Przemek on 2017-06-20.
@@ -69,5 +70,17 @@ public class SessionManager extends Agent {
 
     public BigDecimal getCurrentAssetValue(Asset assetToCheck) {
         return gui.getCurrentAssetValue(assetToCheck);
+    }
+
+    public AID getHistorian() {
+        return historian;
+    }
+
+    public List<Asset> getAssets() {
+        return gui.getAssets();
+    }
+
+    public void changeAssetPrice(Asset asset, BigDecimal amount) {
+        gui.changeAssetPrice(asset, amount);
     }
 }

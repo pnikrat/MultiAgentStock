@@ -38,5 +38,6 @@ public class SchedulePriceCheck extends TickerBehaviour {
         priceCheckMessage = new ACLMessage(ACLMessage.REQUEST);
         priceCheckMessage.addReceiver(myAgentConcrete.getHistorian());
         priceCheckMessage.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+        priceCheckMessage.setConversationId("price-check");
     }
 }

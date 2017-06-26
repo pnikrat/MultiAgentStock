@@ -48,6 +48,14 @@ public class SessionManagerGui extends JFrame {
         return inventoryTableModel.getCurrentAssetValue(assetToCheck);
     }
 
+    public List<Asset> getAssets() {
+        return inventoryTableModel.getAssets();
+    }
+
+    public void changeAssetPrice(Asset asset, BigDecimal amount) {
+        inventoryTableModel.changeAssetPrice(asset, amount);
+    }
+
     private void fillMarketWithStock() {
         MarketOfAssets market = new MarketOfAssets();
         List<Asset> assets = market.getAssetsOnMarket();

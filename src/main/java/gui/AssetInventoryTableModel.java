@@ -118,6 +118,13 @@ public class AssetInventoryTableModel extends AbstractTableModel {
         addRow(assetToAdd);
     }
 
+    public void changeAssetPrice(Asset asset, BigDecimal amount) {
+        BigDecimal currentPrice = getCurrentAssetValue(asset);
+        Integer rowIndex = getRowByShortName(asset.getShortName());
+        if (rowIndex != null)
+            setValueAt(currentPrice.add(amount), rowIndex, 2);
+    }
+
     public BigDecimal getCurrentAssetValue(Asset assetToCheck) {
         for (Asset a : assets) {
             if (a.equals(assetToCheck)) {
@@ -125,6 +132,10 @@ public class AssetInventoryTableModel extends AbstractTableModel {
             }
         }
         return null;
+    }
+
+    public List<Asset> getAssets() {
+        return this.assets;
     }
 
     private Asset getStock(int rowIndex) {
