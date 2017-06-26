@@ -33,7 +33,7 @@ public class ArchiveStockData extends AchieveREResponder {
             e.printStackTrace();
         }
         //archive data here
-        System.out.println(newPricesToArchive.get(0).getUnitValue());
+        myAgentConcrete.archiveData(newPricesToArchive);
         ACLMessage reply = request.createReply();
         reply.setPerformative(ACLMessage.INFORM);
         return reply;

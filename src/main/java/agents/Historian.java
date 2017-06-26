@@ -2,6 +2,7 @@ package agents;
 
 import behaviours.ArchiveStockData;
 import behaviours.PriceInform;
+import gui.HistorianGui;
 import jade.core.Agent;
 import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
@@ -22,6 +23,7 @@ public class Historian extends Agent {
     private List<Asset> assets = new ArrayList<Asset>();
     private MessageTemplate priceInformTemplate;
     private MessageTemplate archiveStockDataTemplate;
+    private HistorianGui gui;
 
     @Override
     protected void setup() {
@@ -36,6 +38,8 @@ public class Historian extends Agent {
         addBehaviour(new PriceInform(this, priceInformTemplate));
         setArchiveStockDataTemplateAttributes();
         addBehaviour(new ArchiveStockData(this, archiveStockDataTemplate));
+        gui = new HistorianGui(assets);
+        gui.showGui();
     }
 
     @Override
@@ -46,6 +50,10 @@ public class Historian extends Agent {
 
     public BigDecimal getAssetCurrentPrice(Asset assetToCheckPrice) {
         return (findAsset(assetToCheckPrice).getUnitValue());
+    }
+
+    public void archiveData(List<Asset> newPricesToArchive) {
+
     }
 
     private void setStartupPrices() {
