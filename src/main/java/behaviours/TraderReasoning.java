@@ -2,8 +2,6 @@ package behaviours;
 
 import agents.StockTrader;
 import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.DataStore;
 import jade.core.behaviours.ParallelBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.domain.FIPANames;
@@ -13,38 +11,40 @@ import jade.lang.acl.UnreadableException;
 import jade.proto.ContractNetResponder;
 import models.Asset;
 import models.Order;
+import models.TrendQuery;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Przemek on 2017-06-26.
  */
 public class TraderReasoning extends ParallelBehaviour {
-    private boolean subOneFinished = false;
-    private boolean subTwoFinished = false;
+    private boolean senderFinished = false;
+    private boolean receiverFinished = false;
     private ContractNetResponder parentBehaviour;
     private StockTrader myAgentConcrete;
     private ACLMessage cfpMessage;
     private ACLMessage messageToHistorian;
     private ACLMessage priceCheckMessage;
-    private final int NUMBER_OF_PRICE_CHECKS = 3;
-    private List<List<Asset>> testAssetsList = new ArrayList<List<Asset>>();
+    private final int NUMBER_OF_TREND_CHECKS = 1;
+    private List<TrendQuery> checkedTrends = new ArrayList<TrendQuery>();
 
     public TraderReasoning(Agent a, ContractNetResponder parentBehaviour) {
         super(a, WHEN_ALL); //end this master behaviour when ALL subbehaviours have completed at least once
         this.parentBehaviour = parentBehaviour;
         this.myAgentConcrete = (StockTrader) a;
+        initSubBehaviours();
     }
 
     @Override
     public void onStart() {
-        subOneFinished = false;
-        subTwoFinished = false;
-//        testAssetsList.clear();
-        initSubBehaviours();
+        senderFinished = false;
+        receiverFinished = false;
+        checkedTrends.clear();
         cfpMessage = (ACLMessage) this.getDataStore().get(parentBehaviour.CFP_KEY);
         myAgentConcrete.setTradingStatus(true);
         System.out.println("Starting...");
@@ -53,42 +53,53 @@ public class TraderReasoning extends ParallelBehaviour {
     private void initSubBehaviours() {
         //Sender to historian
         addSubBehaviour(new SimpleBehaviour() {
-            private boolean isDone = false;
-            private int counterOfHistorianRequests = 0;
+            private int counterOfHistorianRequests;
             @Override
             public void onStart() {
-                isDone = false;
                 counterOfHistorianRequests = 0;
             }
 
             @Override
             public void action() {
-                if (messageToHistorian != null) {
+                setPriceCheckMessageAttributes();
+                List<Asset> assetsToCheck = myAgentConcrete.getAvailableAssets();
+                List<TrendQuery> historianQuery = new ArrayList<TrendQuery>();
+                for (Asset a : assetsToCheck) {
+                    Random r = new Random();
+                    Integer timePeriod = r.nextInt(20 - 5) + 5;
+                    TrendQuery t = new TrendQuery(a, timePeriod);
+                    historianQuery.add(t);
+                }
+                try {
+                    priceCheckMessage.setContentObject((Serializable) historianQuery);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (messageToHistorian == null) {
+                    messageToHistorian = priceCheckMessage;
                     myAgentConcrete.send(messageToHistorian);
                     messageToHistorian = null; //clear buffer message
-                    counterOfHistorianRequests++;
+                    priceCheckMessage = null;
+                    ++counterOfHistorianRequests;
                 }
-                if (counterOfHistorianRequests == NUMBER_OF_PRICE_CHECKS)
-                    isDone = true;
             }
 
             @Override
             public boolean done() {
-                if (isDone) {
-                    subOneFinished = true;
-                    System.out.println("Sub one finished!" + myAgentConcrete.getLocalName());
+                if (counterOfHistorianRequests >= NUMBER_OF_TREND_CHECKS) {
+                    senderFinished = true;
+                    System.out.println("Sender finished!" + myAgentConcrete.getLocalName());
+                    return true;
                 }
-                return isDone;
+                else
+                    return false;
             }
         });
         //Receiver from historian
         addSubBehaviour(new SimpleBehaviour() {
-            private boolean isDone = false;
-            private int counterOfHistorianResponds = 0;
-
+            private int counterOfHistorianResponds;
             @Override
             public void onStart() {
-                isDone = false;
                 counterOfHistorianResponds = 0;
             }
 
@@ -99,51 +110,45 @@ public class TraderReasoning extends ParallelBehaviour {
                 ACLMessage response = myAgentConcrete.receive(mt);
                 if (response != null) {
                     System.out.println("Historian responded " + myAgentConcrete.getLocalName());
-                    List<Asset> testAssets = null;
+                    List<TrendQuery> receivedTrends = null;
                     try {
-                        testAssets = (List<Asset>) response.getContentObject();
+                        receivedTrends = (List<TrendQuery>) response.getContentObject();
                     } catch (UnreadableException e) {
                         e.printStackTrace();
                     }
-                    if (testAssets != null) {
-                        testAssetsList.add(testAssets);
-                        for (Asset a : testAssets)
-                            myAgentConcrete.setCheckedPrice(a.getUnitValue(), a);
+                    if (receivedTrends != null) {
+                        checkedTrends.addAll(receivedTrends);
+                        counterOfHistorianResponds++;
                     }
-                    counterOfHistorianResponds++;
-                }
-                if (counterOfHistorianResponds == NUMBER_OF_PRICE_CHECKS) {
-                    isDone = true;
                 }
             }
 
             @Override
             public boolean done() {
-                if (isDone) {
-                    subTwoFinished = true;
-                    System.out.println("Sub two finished!" + myAgentConcrete.getLocalName());
+                if (counterOfHistorianResponds >= NUMBER_OF_TREND_CHECKS) {
+                    receiverFinished = true;
+                    System.out.println("Receiver finished!" + myAgentConcrete.getLocalName());
+                    System.out.println("Trends list length: " + checkedTrends.size());
+                    return true;
                 }
-                return isDone;
+                else
+                    return false;
             }
         });
         //REASONER - here we will decide whether sell/buy etc..
         addSubBehaviour(new SimpleBehaviour() {
+            private boolean isDone = false;
             @Override
             public void action() {
-                setPriceCheckMessageAttributes();
-                List<Asset> assetsToCheckPrice = myAgentConcrete.getAssetPrices();
-                try {
-                    priceCheckMessage.setContentObject((Serializable) assetsToCheckPrice);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                messageToHistorian = priceCheckMessage;
+                //do sth with trendQueries
+                if (receiverFinished && senderFinished)
+                    isDone = true;
             }
 
             @Override
             public boolean done() {
-                System.out.println(subOneFinished + " " + subTwoFinished + " " + myAgentConcrete.getLocalName());
-                return subTwoFinished && subOneFinished;
+                //System.out.println(senderFinished + " " + receiverFinished + " " + myAgentConcrete.getLocalName());
+                return receiverFinished && senderFinished && isDone;
             }
         });
     }
@@ -171,3 +176,4 @@ public class TraderReasoning extends ParallelBehaviour {
         priceCheckMessage.setConversationId("price-check" + myAgentConcrete.getLocalName());
     }
 }
+

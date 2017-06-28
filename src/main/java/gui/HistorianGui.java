@@ -54,6 +54,12 @@ public class HistorianGui extends JFrame {
         });
     }
 
+    public List<BigDecimal> getTrend(Asset asset, Integer timePeriod) {
+        List<BigDecimal> allAssetData = chartYData.get(asset.getShortName());
+        return new ArrayList<BigDecimal>(allAssetData
+                .subList(Math.max(0, allAssetData.size() - timePeriod), allAssetData.size()));
+    }
+
     private void initChartData() {
         chartXData.add(0);
         for (Asset a : startupData) {

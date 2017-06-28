@@ -10,10 +10,12 @@ import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 import jade.proto.AchieveREResponder;
 import models.Asset;
+import models.TrendQuery;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,20 +31,22 @@ public class PriceInform extends AchieveREResponder {
 
     @Override
     protected ACLMessage handleRequest(ACLMessage request) throws NotUnderstoodException, RefuseException {
-        List<Asset> assetsToPriceCheck = null;
+        List<TrendQuery> trendsToCheck = null;
         try {
-            assetsToPriceCheck = (List<Asset>) request.getContentObject();
+            trendsToCheck = (List<TrendQuery>) request.getContentObject();
         } catch (UnreadableException e) {
             e.printStackTrace();
         }
         ACLMessage reply = request.createReply();
-        if (assetsToPriceCheck != null) {
+        if (trendsToCheck != null) {
             reply.setPerformative(ACLMessage.INFORM);
-            for (Asset a : assetsToPriceCheck) {
-                a.setUnitValue(myAgentConcrete.getAssetCurrentPrice(a));
+            List<TrendQuery> queryResult = new ArrayList<TrendQuery>();
+            for (TrendQuery t : trendsToCheck) {
+                TrendQuery singleQueryResult = myAgentConcrete.getTrend(t);
+                queryResult.add(singleQueryResult);
             }
             try {
-                reply.setContentObject((Serializable) assetsToPriceCheck);
+                reply.setContentObject((Serializable) queryResult);
             } catch (IOException e) {
                 e.printStackTrace();
             }

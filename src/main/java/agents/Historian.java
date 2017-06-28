@@ -9,6 +9,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import models.Asset;
 import models.MarketOfAssets;
+import models.TrendQuery;
 import utils.DfAgentUtils;
 
 import java.math.BigDecimal;
@@ -48,8 +49,13 @@ public class Historian extends Agent {
         utils.deregisterService();
     }
 
-    public BigDecimal getAssetCurrentPrice(Asset assetToCheckPrice) {
-        return (findAsset(assetToCheckPrice).getUnitValue());
+    public TrendQuery getTrend(TrendQuery trendToCheck) {
+        Asset assetToCheck = trendToCheck.getAsset();
+        Integer timePeriod = trendToCheck.getTimePeriod();
+        TrendQuery trendResult = new TrendQuery(assetToCheck, timePeriod); //copy
+        List<BigDecimal> trend = gui.getTrend(assetToCheck, timePeriod);
+        trendResult.setTrend(trend);
+        return trendResult;
     }
 
     public void archiveData(List<Asset> newPricesToArchive) {

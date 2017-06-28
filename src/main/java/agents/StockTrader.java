@@ -31,7 +31,7 @@ public class StockTrader extends Agent {
     private BigDecimal checkedPrice;
     private boolean tradingStatus;
     private MessageTemplate tradingTemplate;
-    private List<Asset> assetPrices;
+    private List<Asset> availableAssets;
 
     @Override
     protected void setup() {
@@ -55,9 +55,9 @@ public class StockTrader extends Agent {
         setCurrentMoney(startupArguments.get(2));
         setTradingStatus(false);
 
-        gui.addAsset(new Asset("BZW", new BigDecimal("34.67"), 25));
+        gui.addAsset(new Asset("BZW", new BigDecimal("34.67"), 55));
         MarketOfAssets market = new MarketOfAssets();
-        assetPrices = market.getAssetsOnMarket();
+        availableAssets = market.getAssetsOnMarket();
 
         setTradingTemplateAttributes();
         addBehaviour(new SubmitOrders(this, tradingTemplate));
@@ -74,12 +74,12 @@ public class StockTrader extends Agent {
         return historian;
     }
 
-    public List<Asset> getAssetPrices() {
-        return assetPrices;
+    public List<Asset> getAvailableAssets() {
+        return availableAssets;
     }
 
     public void setCheckedPrice(BigDecimal checkedPrice, Asset assetChecked) {
-        for (Asset a : assetPrices) {
+        for (Asset a : availableAssets) {
             if (a.equals(assetChecked))
                 a.setUnitValue(checkedPrice);
         }
