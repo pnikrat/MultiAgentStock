@@ -10,11 +10,14 @@ import jade.lang.acl.MessageTemplate;
 import models.Asset;
 import models.MarketOfAssets;
 import models.Order;
+import models.TrendQuery;
 import utils.DfAgentUtils;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Przemek on 2017-06-20.
@@ -32,6 +35,7 @@ public class StockTrader extends Agent {
     private boolean tradingStatus;
     private MessageTemplate tradingTemplate;
     private List<Asset> availableAssets;
+    private List<Asset> assetsInInventory;
 
     @Override
     protected void setup() {
@@ -100,6 +104,129 @@ public class StockTrader extends Agent {
         Asset soldAsset = result.getAssetToTrade();
         gui.removeSoldAsset(soldAsset);
         addMoney(soldAsset);
+    }
+
+    public Order checkProfitCreateOrder(List<TrendQuery> checkedTrends) {
+        BigDecimal cheapestAssetOnMarket = findCheapestPrice(checkedTrends); //used to check if trader can afford cheapest asset
+        assetsInInventory = gui.getAssets();
+        BigDecimal lowerBound = calculatePercentage("0.1");
+        if (lowerBound.compareTo(cheapestAssetOnMarket) == -1 && assetsInInventory.size() == 0) {
+            return null; //not enough money and no assets - resign from trade
+        }
+        if (assetsInInventory.size() < 3) {
+            return createBuyOrder(checkedTrends);
+        }
+        else {
+            BigDecimal buyingBound = calculateSpreadPercentage("0.3");
+            if (currentMoney.compareTo(buyingBound) == 1) {
+                return createBuyOrder(checkedTrends);
+            }
+            else {
+                return createSellOrder(checkedTrends);
+            }
+        }
+    }
+
+    private Order createBuyOrder(List<TrendQuery> checkedTrends) {
+        TrendQuery bestAssetToBuy = findHighestDerivative(checkedTrends);
+        BigDecimal latestPriceOfBestAsset = bestAssetToBuy.getCurrentPrice();
+        BigDecimal lowerBound;
+        if (Math.random() < 0.5)
+            lowerBound = calculatePercentage("0.1");
+        else
+            lowerBound = calculatePercentage("0.2");
+        int numberOfUnits = 0;
+        while (latestPriceOfBestAsset.multiply(new BigDecimal(numberOfUnits)).compareTo(lowerBound) < 1) {
+            numberOfUnits++;
+        }
+        if (numberOfUnits == 0)
+            return createSellOrder(checkedTrends);
+        return new Order(bestAssetToBuy.getAsset(), true, numberOfUnits);
+    }
+
+    private Order createSellOrder(List<TrendQuery> checkedTrends) {
+        for (Asset a : assetsInInventory) {
+            BigDecimal lossBoundary = calculateFlatPercentage("0.3", a.getUnitValue());
+            TrendQuery specificTrend = findSpecificTrend(a, checkedTrends);
+            BigDecimal currentPrice = specificTrend.getCurrentPrice();
+            if (currentPrice.subtract(a.getUnitValue()).abs().compareTo(lossBoundary) == 1) {
+                return new Order(a, false, a.getNumberOfUnits());
+            }
+        }
+        Asset bestAssetToSell = findHighestDerivativeAmongInventory(checkedTrends);
+        if (bestAssetToSell == null)
+            return null;
+        else
+            return new Order(bestAssetToSell, false, bestAssetToSell.getNumberOfUnits());
+    }
+
+    private TrendQuery findSpecificTrend (Asset assetTrendToFind, List<TrendQuery> checkedTrends) {
+        for (TrendQuery t: checkedTrends) {
+            if (t.getAsset().equals(assetTrendToFind))
+                return t;
+        }
+        return null;
+    }
+
+    private BigDecimal findCheapestPrice(List<TrendQuery> checkedTrends) {
+        BigDecimal min = new BigDecimal("9999.99");
+        for (TrendQuery t: checkedTrends) {
+            BigDecimal currentPrice = t.getCurrentPrice();
+            if (currentPrice.compareTo(min) == -1) {
+                min = currentPrice;
+            }
+        }
+        return min;
+    }
+
+    private TrendQuery findHighestDerivative(List<TrendQuery> checkedTrends) {
+        BigDecimal highestDerivative = new BigDecimal(BigInteger.ZERO);
+        TrendQuery trendWithHighestDerivative = null;
+        for (TrendQuery t: checkedTrends) {
+            List<BigDecimal> trend = t.getTrend();
+            if (trend.size() < 2) { // not enough data from historian -> choose randomly (have to buy sth at beginning)
+                Random r = new Random();
+                Integer randomTrend = r.nextInt(6);
+                trendWithHighestDerivative = checkedTrends.get(randomTrend);
+                break;
+            }
+            BigDecimal derivative = t.getCurrentPrice().subtract(trend.get(0));
+            if (derivative.compareTo(highestDerivative) == 1) {
+                highestDerivative = derivative;
+                trendWithHighestDerivative = t;
+            }
+        }
+        return trendWithHighestDerivative;
+    }
+
+    private Asset findHighestDerivativeAmongInventory(List<TrendQuery> checkedTrends) {
+        BigDecimal highestDerivative = new BigDecimal(BigInteger.ZERO);
+        Asset assetWithHighestDerivative = null;
+        for (Asset a : assetsInInventory) {
+            TrendQuery specificTrend = findSpecificTrend(a, checkedTrends);
+            List<BigDecimal> trend = specificTrend.getTrend();
+            if (trend.size() < 2) { //not enough data from historian -> better not to sell anything
+                return null;
+            }
+            BigDecimal derivative = specificTrend.getCurrentPrice().subtract(a.getUnitValue());
+            if (derivative.compareTo(highestDerivative) == 1) {
+                highestDerivative = derivative;
+                assetWithHighestDerivative = specificTrend.getAsset();
+            }
+        }
+        return assetWithHighestDerivative;
+    }
+
+    private BigDecimal calculateFlatPercentage(String percentage, BigDecimal value) {
+        return value.multiply(new BigDecimal(percentage));
+    }
+
+    private BigDecimal calculatePercentage(String percentage) {
+        return currentMoney.subtract(maximumLoss).abs().multiply(new BigDecimal(percentage));
+    }
+
+    private BigDecimal calculateSpreadPercentage(String percentage) {
+        return desiredGain.subtract(maximumLoss).abs().multiply(new BigDecimal(percentage));
     }
 
     private void collectStartupArguments() {

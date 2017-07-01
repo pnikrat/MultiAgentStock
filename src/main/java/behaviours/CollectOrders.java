@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Random;
 import java.util.Vector;
 
 /**
@@ -115,6 +116,10 @@ public class CollectOrders extends ContractNetInitiator {
     }
 
     private void setNewPrices() {
-        myAgentConcrete.changeAssetPrice(myAgentConcrete.getAssets().get(2), new BigDecimal("-5.0"));
+        for (int i = 0 ; i < 6 ; i++) {
+            Random r = new Random();
+            Integer priceChange = r.nextInt(8) - 4;
+            myAgentConcrete.changeAssetPrice(myAgentConcrete.getAssets().get(i), new BigDecimal(priceChange));
+        }
     }
 }

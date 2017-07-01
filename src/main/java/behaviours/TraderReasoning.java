@@ -32,6 +32,7 @@ public class TraderReasoning extends ParallelBehaviour {
     private ACLMessage priceCheckMessage;
     private final int NUMBER_OF_TREND_CHECKS = 1;
     private List<TrendQuery> checkedTrends = new ArrayList<TrendQuery>();
+    private Order orderToSend;
 
     public TraderReasoning(Agent a, ContractNetResponder parentBehaviour) {
         super(a, WHEN_ALL); //end this master behaviour when ALL subbehaviours have completed at least once
@@ -137,17 +138,24 @@ public class TraderReasoning extends ParallelBehaviour {
         });
         //REASONER - here we will decide whether sell/buy etc..
         addSubBehaviour(new SimpleBehaviour() {
-            private boolean isDone = false;
+            private boolean isDone;
+
+            @Override
+            public void onStart() {
+                isDone = false;
+            }
+
             @Override
             public void action() {
-                //do sth with trendQueries
-                if (receiverFinished && senderFinished)
+                //evaluate profitability in agent class to keep behaviour code clean
+                if (receiverFinished && senderFinished && !isDone) {
+                    orderToSend = myAgentConcrete.checkProfitCreateOrder(checkedTrends);
                     isDone = true;
+                }
             }
 
             @Override
             public boolean done() {
-                //System.out.println(senderFinished + " " + receiverFinished + " " + myAgentConcrete.getLocalName());
                 return receiverFinished && senderFinished && isDone;
             }
         });
@@ -155,14 +163,18 @@ public class TraderReasoning extends ParallelBehaviour {
 
     @Override
     public int onEnd() {
-        Asset tradedAsset = new Asset("BZW");
-        Order order = new Order(tradedAsset, false, 10);
+        // if order to send is null agent resigns from trade
         ACLMessage reply = cfpMessage.createReply();
-        reply.setPerformative(ACLMessage.PROPOSE);
-        try {
-            reply.setContentObject(order);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (orderToSend != null) {
+            reply.setPerformative(ACLMessage.PROPOSE);
+            try {
+                reply.setContentObject(orderToSend);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            reply.setPerformative(ACLMessage.REFUSE);
         }
         this.getDataStore().put(parentBehaviour.REPLY_KEY, reply);
         System.out.println("Parallel behaviour finished.");

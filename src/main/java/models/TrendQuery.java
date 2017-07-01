@@ -40,4 +40,8 @@ public class TrendQuery implements Serializable {
     public void setTrend(List<BigDecimal> trend) {
         this.trend = trend;
     }
+
+    public BigDecimal getCurrentPrice() {
+        return trend.get(trend.size() - 1);
+    }
 }

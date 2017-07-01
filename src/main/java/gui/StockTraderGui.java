@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Created by Przemek on 2017-06-20.
@@ -79,6 +80,10 @@ public class StockTraderGui extends JFrame {
 
     public void removeSoldAsset(Asset asset) {
         inventoryTableModel.removeAssetUnits(asset, asset.getNumberOfUnits());
+    }
+
+    public List<Asset> getAssets() {
+        return inventoryTableModel.getAssets();
     }
 
     private void initLabelsBaseTexts() {
