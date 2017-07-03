@@ -38,11 +38,12 @@ public class HistorianGui extends JFrame {
     }
 
     public void showGui() {
-        this.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
         pricesChartPanel = new XChartPanel<XYChart>(pricesChart);
-        this.add(pricesChartPanel, BorderLayout.CENTER);
-        this.pack();
-        this.setVisible(true);
+        add(pricesChartPanel, BorderLayout.CENTER);
+        pack();
+        setLocationByPlatform(true);
+        setVisible(true);
     }
 
     public void addNewPrices(final List<Asset> newPricesToArchive) {

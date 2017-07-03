@@ -36,6 +36,7 @@ public class StockTraderGui extends JFrame {
 
     public void showGui() {
         pack();
+        setLocationByPlatform(true);
         setVisible(true);
     }
 

@@ -228,7 +228,7 @@ public class StockTrader extends Agent {
         TrendQuery trendWithHighestDerivative = null;
         for (TrendQuery t: checkedTrends) {
             List<BigDecimal> trend = t.getTrend();
-            if (trend.size() < 2) { // not enough data from historian -> choose randomly (have to buy sth at beginning)
+            if (trend.size() < 5) { // not enough data from historian -> choose randomly (have to buy sth at beginning)
                 Random r = new Random();
                 Integer randomTrend = r.nextInt(6);
                 trendWithHighestDerivative = checkedTrends.get(randomTrend);

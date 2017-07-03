@@ -28,6 +28,7 @@ public class SessionManagerGui extends JFrame {
 
     public void showGui() {
         pack();
+        setLocationByPlatform(true);
         setVisible(true);
     }
 
