@@ -36,6 +36,7 @@ public class StockTrader extends Agent {
     private MessageTemplate tradingTemplate;
     private List<Asset> availableAssets;
     private List<Asset> assetsInInventory;
+    private boolean success;
 
     @Override
     protected void setup() {
@@ -59,7 +60,6 @@ public class StockTrader extends Agent {
         setCurrentMoney(startupArguments.get(2));
         setTradingStatus(false);
 
-        gui.addAsset(new Asset("BZW", new BigDecimal("34.67"), 55));
         MarketOfAssets market = new MarketOfAssets();
         availableAssets = market.getAssetsOnMarket();
 
@@ -69,7 +69,10 @@ public class StockTrader extends Agent {
 
     @Override
     protected void takeDown() {
-        System.out.println("Asset trader agent going down");
+        if (success)
+            System.out.println("StockTrader agent going down - success - earned enough money");
+        else
+            System.out.println("StockTrader agent going down - failure - lost too much money");
         utils.deregisterService();
         gui.dispose();
     }
@@ -87,6 +90,15 @@ public class StockTrader extends Agent {
             if (a.equals(assetChecked))
                 a.setUnitValue(checkedPrice);
         }
+    }
+
+    public boolean checkSelfState() {
+        if (currentMoney.compareTo(maximumLoss) == -1 || currentMoney.compareTo(desiredGain) == 1) {
+            success = currentMoney.compareTo(maximumLoss) != -1;
+            return true;
+        }
+        else
+            return false;
     }
 
     public void setTradingStatus(boolean tradingStatus) {
@@ -129,6 +141,8 @@ public class StockTrader extends Agent {
 
     private Order createBuyOrder(List<TrendQuery> checkedTrends) {
         TrendQuery bestAssetToBuy = findHighestDerivative(checkedTrends);
+        if (bestAssetToBuy == null)
+            return null;
         BigDecimal latestPriceOfBestAsset = bestAssetToBuy.getCurrentPrice();
         BigDecimal lowerBound;
         if (Math.random() < 0.5)
@@ -275,6 +289,4 @@ public class StockTrader extends Agent {
     private BigDecimal getCurrentMoney() {
         return currentMoney;
     }
-
-
 }

@@ -33,6 +33,7 @@ public class TraderReasoning extends ParallelBehaviour {
     private final int NUMBER_OF_TREND_CHECKS = 1;
     private List<TrendQuery> checkedTrends = new ArrayList<TrendQuery>();
     private Order orderToSend;
+    private boolean traderConditionsFulfilled;
 
     public TraderReasoning(Agent a, ContractNetResponder parentBehaviour) {
         super(a, WHEN_ALL); //end this master behaviour when ALL subbehaviours have completed at least once
@@ -45,10 +46,19 @@ public class TraderReasoning extends ParallelBehaviour {
     public void onStart() {
         senderFinished = false;
         receiverFinished = false;
+        orderToSend = null;
         checkedTrends.clear();
         cfpMessage = (ACLMessage) this.getDataStore().get(parentBehaviour.CFP_KEY);
-        myAgentConcrete.setTradingStatus(true);
-        System.out.println("Starting...");
+        traderConditionsFulfilled = myAgentConcrete.checkSelfState();
+        if (!traderConditionsFulfilled) {
+            myAgentConcrete.setTradingStatus(true);
+            System.out.println("Starting...");
+        }
+        else {
+//            senderFinished = true;
+//            receiverFinished = true;
+            myAgentConcrete.doDelete();
+        }
     }
 
     private void initSubBehaviours() {
@@ -62,26 +72,28 @@ public class TraderReasoning extends ParallelBehaviour {
 
             @Override
             public void action() {
-                setPriceCheckMessageAttributes();
-                List<Asset> assetsToCheck = myAgentConcrete.getAvailableAssets();
-                List<TrendQuery> historianQuery = new ArrayList<TrendQuery>();
-                for (Asset a : assetsToCheck) {
-                    Random r = new Random();
-                    Integer timePeriod = r.nextInt(20 - 5) + 5;
-                    TrendQuery t = new TrendQuery(a, timePeriod);
-                    historianQuery.add(t);
-                }
-                try {
-                    priceCheckMessage.setContentObject((Serializable) historianQuery);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (messageToHistorian == null) {
-                    messageToHistorian = priceCheckMessage;
-                    myAgentConcrete.send(messageToHistorian);
-                    messageToHistorian = null; //clear buffer message
-                    priceCheckMessage = null;
-                    ++counterOfHistorianRequests;
+                if (!traderConditionsFulfilled) {
+                    setPriceCheckMessageAttributes();
+                    List<Asset> assetsToCheck = myAgentConcrete.getAvailableAssets();
+                    List<TrendQuery> historianQuery = new ArrayList<TrendQuery>();
+                    for (Asset a : assetsToCheck) {
+                        Random r = new Random();
+                        Integer timePeriod = r.nextInt(20 - 5) + 5;
+                        TrendQuery t = new TrendQuery(a, timePeriod);
+                        historianQuery.add(t);
+                    }
+                    try {
+                        priceCheckMessage.setContentObject((Serializable) historianQuery);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    if (messageToHistorian == null) {
+                        messageToHistorian = priceCheckMessage;
+                        myAgentConcrete.send(messageToHistorian);
+                        messageToHistorian = null; //clear buffer message
+                        priceCheckMessage = null;
+                        ++counterOfHistorianRequests;
+                    }
                 }
             }
 
@@ -106,20 +118,22 @@ public class TraderReasoning extends ParallelBehaviour {
 
             @Override
             public void action() {
-                MessageTemplate mt =
-                        MessageTemplate.MatchConversationId("price-check" + myAgentConcrete.getLocalName());
-                ACLMessage response = myAgentConcrete.receive(mt);
-                if (response != null) {
-                    System.out.println("Historian responded " + myAgentConcrete.getLocalName());
-                    List<TrendQuery> receivedTrends = null;
-                    try {
-                        receivedTrends = (List<TrendQuery>) response.getContentObject();
-                    } catch (UnreadableException e) {
-                        e.printStackTrace();
-                    }
-                    if (receivedTrends != null) {
-                        checkedTrends.addAll(receivedTrends);
-                        counterOfHistorianResponds++;
+                if (!traderConditionsFulfilled) {
+                    MessageTemplate mt =
+                            MessageTemplate.MatchConversationId("price-check" + myAgentConcrete.getLocalName());
+                    ACLMessage response = myAgentConcrete.receive(mt);
+                    if (response != null) {
+                        System.out.println("Historian responded " + myAgentConcrete.getLocalName());
+                        List<TrendQuery> receivedTrends = null;
+                        try {
+                            receivedTrends = (List<TrendQuery>) response.getContentObject();
+                        } catch (UnreadableException e) {
+                            e.printStackTrace();
+                        }
+                        if (receivedTrends != null) {
+                            checkedTrends.addAll(receivedTrends);
+                            counterOfHistorianResponds++;
+                        }
                     }
                 }
             }
@@ -148,7 +162,7 @@ public class TraderReasoning extends ParallelBehaviour {
             @Override
             public void action() {
                 //evaluate profitability in agent class to keep behaviour code clean
-                if (receiverFinished && senderFinished && !isDone) {
+                if (receiverFinished && senderFinished && !isDone && !traderConditionsFulfilled) {
                     orderToSend = myAgentConcrete.checkProfitCreateOrder(checkedTrends);
                     isDone = true;
                 }
@@ -163,6 +177,12 @@ public class TraderReasoning extends ParallelBehaviour {
 
     @Override
     public int onEnd() {
+        prepareReply();
+        System.out.println("Parallel behaviour finished.");
+        return super.onEnd();
+    }
+
+    private void prepareReply() {
         // if order to send is null agent resigns from trade
         ACLMessage reply = cfpMessage.createReply();
         if (orderToSend != null) {
@@ -177,8 +197,6 @@ public class TraderReasoning extends ParallelBehaviour {
             reply.setPerformative(ACLMessage.REFUSE);
         }
         this.getDataStore().put(parentBehaviour.REPLY_KEY, reply);
-        System.out.println("Parallel behaviour finished.");
-        return super.onEnd();
     }
 
     private void setPriceCheckMessageAttributes() {

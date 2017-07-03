@@ -7,6 +7,8 @@ import jade.core.behaviours.TickerBehaviour;
 import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 
+import java.util.Date;
+
 /**
  * Created by Przemek on 2017-06-24.
  */
@@ -34,6 +36,7 @@ public class ScheduleTradingPeriod extends TickerBehaviour {
         cfp = new ACLMessage(ACLMessage.CFP);
         cfp.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
         cfp.setConversationId(conversationId);
+        cfp.setReplyByDate(new Date(System.currentTimeMillis() + 5000L));
         cfp.setContent(content);
     }
 
