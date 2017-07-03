@@ -3,18 +3,13 @@ package behaviours;
 import agents.StockTrader;
 import jade.core.AID;
 import jade.core.Agent;
-import jade.core.behaviours.DataStore;
 import jade.domain.FIPAAgentManagement.FailureException;
-import jade.domain.FIPAAgentManagement.NotUnderstoodException;
-import jade.domain.FIPAAgentManagement.RefuseException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 import jade.proto.ContractNetResponder;
 import models.Asset;
 import models.Order;
-
-import java.io.IOException;
 
 /**
  * Created by Przemek on 2017-06-24.
@@ -49,6 +44,7 @@ public class SubmitOrders extends ContractNetResponder {
                 myAgentConcrete.addBoughtStock(result);
             else
                 myAgentConcrete.removeSoldStock(result);
+            myAgentConcrete.appendLogMessage(result.getLogMessage());
             myAgentConcrete.setTradingStatus(false);
             ACLMessage reply = accept.createReply();
             reply.setPerformative(ACLMessage.INFORM);

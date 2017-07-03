@@ -4,11 +4,9 @@ import agents.StockTrader;
 import models.Asset;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -17,11 +15,13 @@ import java.util.List;
 public class StockTraderGui extends JFrame {
     private StockTrader guiAgent;
 
-    private JLabel maximumLoss, desiredGain, currentMoney, tradingStatus, inventory;
-    private String maximumLossBase, desiredGainBase, currentMoneyBase, tradingStatusBase, inventoryBase;
+    private JLabel maximumLoss, desiredGain, currentMoney, tradingStatus, inventory, logLabel;
+    private String maximumLossBase, desiredGainBase, currentMoneyBase, tradingStatusBase, inventoryBase, logLabelBase;
     private JTable inventoryTable;
+    private JTextArea logArea;
     private AssetInventoryTableModel inventoryTableModel;
-    private JScrollPane scrollPane;
+    private JScrollPane scrollPaneForTable, scrollPaneForLog;
+    private int tradingSessionsCounter = 1;
 
     public StockTraderGui(StockTrader guiAgent) {
         super(guiAgent.getLocalName());
@@ -70,6 +70,15 @@ public class StockTraderGui extends JFrame {
         });
     }
 
+    public void appendToLog(final String logMessage) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                logArea.append("(" + tradingSessionsCounter + ") " + logMessage + "\n");
+                tradingSessionsCounter++;
+            }
+        });
+    }
+
     public void addAsset(Asset asset) {
         inventoryTableModel.addRow(asset);
     }
@@ -92,6 +101,7 @@ public class StockTraderGui extends JFrame {
         currentMoneyBase = "Current money: ";
         tradingStatusBase = "Trading: ";
         inventoryBase = "Assets in inventory: ";
+        logLabelBase = "Previous actions: ";
     }
 
     private void initPanel() {
@@ -103,7 +113,11 @@ public class StockTraderGui extends JFrame {
         addComponents(verticalBox);
 
         defineTable();
-        verticalBox.add(scrollPane);
+        verticalBox.add(scrollPaneForTable);
+        verticalBox.add(logLabel);
+
+        defineLog();
+        verticalBox.add(scrollPaneForLog);
     }
 
     private void defineComponents() {
@@ -121,6 +135,9 @@ public class StockTraderGui extends JFrame {
 
         inventory = new JLabel(inventoryBase);
         configLabel(inventory);
+
+        logLabel = new JLabel(logLabelBase);
+        configLabel(logLabel);
     }
 
     private void configLabel(JLabel label) {
@@ -141,8 +158,14 @@ public class StockTraderGui extends JFrame {
     private void defineTable() {
         inventoryTableModel = new AssetInventoryTableModel();
         inventoryTable = new JTable(inventoryTableModel);
-        inventoryTable.setPreferredScrollableViewportSize(new Dimension(500,200));
-        scrollPane = new JScrollPane(inventoryTable);
+        inventoryTable.setPreferredScrollableViewportSize(new Dimension(500,100));
+        scrollPaneForTable = new JScrollPane(inventoryTable);
+    }
+
+    private void defineLog() {
+        logArea = new JTextArea(6, 20);
+        logArea.setEditable(false);
+        scrollPaneForLog = new JScrollPane(logArea);
     }
 
     private void addListeners() {

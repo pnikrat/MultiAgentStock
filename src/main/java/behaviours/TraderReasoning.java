@@ -195,6 +195,7 @@ public class TraderReasoning extends ParallelBehaviour {
         }
         else {
             reply.setPerformative(ACLMessage.REFUSE);
+            myAgentConcrete.appendLogMessage("Resigned from trade");
             myAgentConcrete.setTradingStatus(false);
         }
         this.getDataStore().put(parentBehaviour.REPLY_KEY, reply);

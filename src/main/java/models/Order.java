@@ -39,4 +39,9 @@ public class Order implements Serializable {
     public void setUnitsToTrade(int unitsToTrade) {
         this.unitsToTrade = unitsToTrade;
     }
+
+    public String getLogMessage() {
+        String buyOrSell = isBuy ? "Bought " : "Sold: ";
+        return buyOrSell + unitsToTrade + " units of " + assetToTrade.getShortName() + " stock";
+    }
 }

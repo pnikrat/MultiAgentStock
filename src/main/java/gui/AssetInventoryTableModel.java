@@ -89,7 +89,8 @@ public class AssetInventoryTableModel extends AbstractTableModel {
 
     public int removeAssetUnits(Asset assetToRemove, int units) {
         int soldUnits = units;
-        for (Asset a : assets) {
+        List<Asset> assetsCopy = new ArrayList<Asset>(assets);
+        for (Asset a : assetsCopy) {
             if (a.equals(assetToRemove)) {
                 Integer rowIndex = getRowByShortName(a.getShortName());
                 if (a.getNumberOfUnits() - units < 0) {

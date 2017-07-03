@@ -85,7 +85,7 @@ public class SessionManagerGui extends JFrame {
     private void defineTable() {
         inventoryTableModel = new AssetInventoryTableModel();
         inventoryTable = new JTable(inventoryTableModel);
-        inventoryTable.setPreferredScrollableViewportSize(new Dimension(500,200));
+        inventoryTable.setPreferredScrollableViewportSize(new Dimension(500,100));
         scrollPane = new JScrollPane(inventoryTable);
     }
 

@@ -118,6 +118,10 @@ public class StockTrader extends Agent {
         addMoney(soldAsset);
     }
 
+    public void appendLogMessage(String logMessage) {
+        gui.appendToLog(logMessage);
+    }
+
     public Order checkProfitCreateOrder(List<TrendQuery> checkedTrends) {
         BigDecimal cheapestAssetOnMarket = findCheapestPrice(checkedTrends); //used to check if trader can afford cheapest asset
         assetsInInventory = gui.getAssets();
