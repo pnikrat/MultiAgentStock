@@ -122,11 +122,15 @@ public class StockTrader extends Agent {
         BigDecimal cheapestAssetOnMarket = findCheapestPrice(checkedTrends); //used to check if trader can afford cheapest asset
         assetsInInventory = gui.getAssets();
         BigDecimal lowerBound = calculatePercentage("0.1");
+        BigDecimal sellingBound = calculateSpreadPercentage("0.1");
         if (lowerBound.compareTo(cheapestAssetOnMarket) == -1 && assetsInInventory.size() == 0) {
             return null; //not enough money and no assets - resign from trade
         }
-        if (assetsInInventory.size() < 3) {
+        if (assetsInInventory.size() < 3 && currentMoney.subtract(maximumLoss).compareTo(sellingBound) >= 0) {
             return createBuyOrder(checkedTrends);
+        }
+        else if (assetsInInventory.size() < 3 && currentMoney.subtract(maximumLoss).compareTo(sellingBound) == -1) {
+            return createSellOrder(checkedTrends);
         }
         else {
             BigDecimal buyingBound = calculateSpreadPercentage("0.3");
@@ -160,7 +164,7 @@ public class StockTrader extends Agent {
 
     private Order createSellOrder(List<TrendQuery> checkedTrends) {
         for (Asset a : assetsInInventory) {
-            BigDecimal lossBoundary = calculateFlatPercentage("0.3", a.getUnitValue());
+            BigDecimal lossBoundary = calculateFlatPercentage("0.2", a.getUnitValue());
             TrendQuery specificTrend = findSpecificTrend(a, checkedTrends);
             BigDecimal currentPrice = specificTrend.getCurrentPrice();
             if (currentPrice.subtract(a.getUnitValue()).abs().compareTo(lossBoundary) == 1) {
