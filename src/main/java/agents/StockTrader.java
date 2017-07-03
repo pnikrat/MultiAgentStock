@@ -123,12 +123,18 @@ public class StockTrader extends Agent {
     }
 
     public Order checkProfitCreateOrder(List<TrendQuery> checkedTrends) {
+        updatePrices(checkedTrends);
         BigDecimal cheapestAssetOnMarket = findCheapestPrice(checkedTrends); //used to check if trader can afford cheapest asset
         assetsInInventory = gui.getAssets();
         BigDecimal lowerBound = calculatePercentage("0.1");
         BigDecimal sellingBound = calculateSpreadPercentage("0.1");
         if (lowerBound.compareTo(cheapestAssetOnMarket) == -1 && assetsInInventory.size() == 0) {
             return null; //not enough money and no assets - resign from trade
+        }
+        if (assetsInInventory.size() >= 1) {
+            Asset possibleAssetToSell = findHighestDerivativeAmongInventory(checkedTrends);
+            if (possibleAssetToSell != null)
+                return createQuickSellOrder(possibleAssetToSell);
         }
         if (assetsInInventory.size() < 3 && currentMoney.subtract(maximumLoss).compareTo(sellingBound) >= 0) {
             return createBuyOrder(checkedTrends);
@@ -145,6 +151,22 @@ public class StockTrader extends Agent {
                 return createSellOrder(checkedTrends);
             }
         }
+    }
+
+    private void updatePrices(List<TrendQuery> checkedTrends) {
+        for (TrendQuery t : checkedTrends) {
+            BigDecimal lastPrice = t.getTrend().get(t.getTrend().size() - 1);
+            BigDecimal difference;
+            if (t.getTrend().size() > 1)
+                difference = lastPrice.subtract(t.getTrend().get(t.getTrend().size() - 2));
+            else
+                difference = lastPrice;
+            gui.updatePrices(t.getAsset(), difference);
+        }
+    }
+
+    private Order createQuickSellOrder(Asset assetToSell) {
+        return new Order(assetToSell, false, assetToSell.getNumberOfUnits());
     }
 
     private Order createBuyOrder(List<TrendQuery> checkedTrends) {
@@ -230,10 +252,11 @@ public class StockTrader extends Agent {
             if (trend.size() < 2) { //not enough data from historian -> better not to sell anything
                 return null;
             }
-            BigDecimal derivative = specificTrend.getCurrentPrice().subtract(a.getUnitValue());
+            BigDecimal derivative = specificTrend.getCurrentPrice().subtract(trend.get(0));
             if (derivative.compareTo(highestDerivative) == 1) {
                 highestDerivative = derivative;
                 assetWithHighestDerivative = specificTrend.getAsset();
+                assetWithHighestDerivative.setNumberOfUnits(a.getNumberOfUnits());
             }
         }
         return assetWithHighestDerivative;

@@ -41,7 +41,7 @@ public class Order implements Serializable {
     }
 
     public String getLogMessage() {
-        String buyOrSell = isBuy ? "Bought " : "Sold: ";
+        String buyOrSell = isBuy ? "Bought " : "Sold ";
         return buyOrSell + unitsToTrade + " units of " + assetToTrade.getShortName() + " stock";
     }
 }

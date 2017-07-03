@@ -2,11 +2,13 @@ package gui;
 
 import agents.StockTrader;
 import models.Asset;
+import models.TrendQuery;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -89,6 +91,10 @@ public class StockTraderGui extends JFrame {
 
     public void removeSoldAsset(Asset asset) {
         inventoryTableModel.removeAssetUnits(asset, asset.getNumberOfUnits());
+    }
+
+    public void updatePrices(Asset assetToUpdatePrice, BigDecimal difference) {
+        inventoryTableModel.changeAssetPrice(assetToUpdatePrice, difference);
     }
 
     public List<Asset> getAssets() {
