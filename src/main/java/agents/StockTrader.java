@@ -166,7 +166,7 @@ public class StockTrader extends Agent {
     }
 
     private Order createQuickSellOrder(Asset assetToSell) {
-        return new Order(assetToSell, false, assetToSell.getNumberOfUnits());
+        return new Order(assetToSell, false, calculateSoldUnitsPercentage(assetToSell.getNumberOfUnits()));
     }
 
     private Order createBuyOrder(List<TrendQuery> checkedTrends) {
@@ -194,14 +194,15 @@ public class StockTrader extends Agent {
             TrendQuery specificTrend = findSpecificTrend(a, checkedTrends);
             BigDecimal currentPrice = specificTrend.getCurrentPrice();
             if (currentPrice.subtract(a.getUnitValue()).abs().compareTo(lossBoundary) == 1) {
-                return new Order(a, false, a.getNumberOfUnits());
+                return new Order(a, false, calculateSoldUnitsPercentage(a.getNumberOfUnits()));
             }
         }
         Asset bestAssetToSell = findHighestDerivativeAmongInventory(checkedTrends);
         if (bestAssetToSell == null)
             return null;
         else
-            return new Order(bestAssetToSell, false, bestAssetToSell.getNumberOfUnits());
+            return new Order(bestAssetToSell, false,
+                    calculateSoldUnitsPercentage(bestAssetToSell.getNumberOfUnits()));
     }
 
     private TrendQuery findSpecificTrend (Asset assetTrendToFind, List<TrendQuery> checkedTrends) {
@@ -272,6 +273,12 @@ public class StockTrader extends Agent {
 
     private BigDecimal calculateSpreadPercentage(String percentage) {
         return desiredGain.subtract(maximumLoss).abs().multiply(new BigDecimal(percentage));
+    }
+
+    private int calculateSoldUnitsPercentage(int units) {
+        Random r = new Random();
+        float percentage = r.nextFloat() * (1.0f - 0.6f) + 0.6f;
+        return Math.round(units * percentage);
     }
 
     private void collectStartupArguments() {
