@@ -66,4 +66,13 @@ public class Asset implements Serializable {
         }
         return false;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        for (int i = 0 ; i < shortName.length() ; i++) {
+            hash = hash * 31 + shortName.charAt(i);
+        }
+        return hash;
+    }
 }

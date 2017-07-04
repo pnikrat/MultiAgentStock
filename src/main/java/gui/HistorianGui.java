@@ -31,6 +31,8 @@ public class HistorianGui extends JFrame {
         pricesChart = new XYChartBuilder().width(600).height(400).title("Stock prices history")
                 .xAxisTitle("Trading session [-]").yAxisTitle("Price [$]").build();
         pricesChart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideE);
+        pricesChart.getStyler().setToolTipsEnabled(true);
+        pricesChart.getStyler().setHasAnnotations(true);
         //pricesChart.getStyler().setXAxisTickMarkSpacingHint(15);
         startupData.addAll(assets);
         initChartData();

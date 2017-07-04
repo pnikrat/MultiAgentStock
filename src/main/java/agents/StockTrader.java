@@ -253,7 +253,7 @@ public class StockTrader extends Agent {
                 return null;
             }
             BigDecimal derivative = specificTrend.getCurrentPrice().subtract(trend.get(0));
-            if (derivative.compareTo(highestDerivative) == 1) {
+            if (derivative.compareTo(highestDerivative) == 1 && derivative.compareTo(new BigDecimal("1.5")) >= 0) {
                 highestDerivative = derivative;
                 assetWithHighestDerivative = specificTrend.getAsset();
                 assetWithHighestDerivative.setNumberOfUnits(a.getNumberOfUnits());

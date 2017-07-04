@@ -14,9 +14,7 @@ import models.Order;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Random;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Created by Przemek on 2017-06-24.
@@ -26,6 +24,9 @@ public class CollectOrders extends ContractNetInitiator {
     private SessionManager myAgentConcrete;
     private Order singleOrderTradeResult;
     private ACLMessage archiveStockDataMessage;
+    private List<Order> ordersFromTraders;
+    private List<ACLMessage> messagesFromTraders;
+    private Map<Asset, Integer> ordersCounted;
 
     public CollectOrders(Agent a, ACLMessage cfp) {
         super(a, cfp);
@@ -33,23 +34,19 @@ public class CollectOrders extends ContractNetInitiator {
     }
 
     @Override
-    protected void handlePropose(ACLMessage propose, Vector acceptances) {
-        Order orderFromProposal = null;
-        try {
-            orderFromProposal = (Order) propose.getContentObject();
-        } catch (UnreadableException e) {
-            e.printStackTrace();
-        }
-        if (orderFromProposal != null) {
-            boolean isBuy = orderFromProposal.isBuy();
+    protected void handleAllResponses(Vector responses, Vector acceptances) {
+        collectNewOrders(responses);
+        countOrders();
+        setNewPrices();
+        int index = 0;
+        for (Order o : ordersFromTraders) {
+            boolean isBuy = o.isBuy();
             boolean tradeSuccessful = true;
-            if (isBuy) {
-                tradeSuccessful = handleBuyOrder(orderFromProposal);
-            }
-            else {
-                handleSellOrder(orderFromProposal);
-            }
-            ACLMessage reply = propose.createReply();
+            if (isBuy)
+                tradeSuccessful = handleBuyOrder(o);
+            else
+                handleSellOrder(o);
+            ACLMessage reply = messagesFromTraders.get(index).createReply();
             if (tradeSuccessful) {
                 reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
                 try {
@@ -60,6 +57,7 @@ public class CollectOrders extends ContractNetInitiator {
                 reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
             }
             acceptances.add(reply);
+            index++;
         }
     }
 
@@ -94,8 +92,6 @@ public class CollectOrders extends ContractNetInitiator {
             @Override
             public void action() {
                 setArchiveStockDataMessageAttributes();
-                //TODO:set new prices here. For now lower by 5 each time
-                setNewPrices();
                 List<Asset> newPricesToArchive = myAgentConcrete.getAssets();
                 try {
                     archiveStockDataMessage.setContentObject((Serializable) newPricesToArchive);
@@ -115,11 +111,52 @@ public class CollectOrders extends ContractNetInitiator {
         archiveStockDataMessage.setConversationId("archive-prices");
     }
 
+    private void collectNewOrders(Vector responses) {
+        ordersFromTraders = new ArrayList<Order>();
+        messagesFromTraders = new ArrayList<ACLMessage>();
+        for (Object response : responses) {
+            ACLMessage propose = (ACLMessage) response;
+            if (propose.getPerformative() == ACLMessage.PROPOSE) {
+                Order orderFromProposal = null;
+                try {
+                    orderFromProposal = (Order) propose.getContentObject();
+                } catch (UnreadableException e) {
+                    e.printStackTrace();
+                }
+                if (orderFromProposal != null) {
+                    ordersFromTraders.add(orderFromProposal);
+                    messagesFromTraders.add(propose);
+                }
+            }
+        }
+    }
+
+    private void countOrders() {
+        ordersCounted = new HashMap<Asset, Integer>();
+        initOrdersCountedMap();
+        for (Order o : ordersFromTraders) {
+            Integer orderModifier = o.isBuy() ? 1 : -1;
+            ordersCounted.put(o.getAssetToTrade(), ordersCounted.get(o.getAssetToTrade()) + orderModifier);
+        }
+    }
+
+    private void initOrdersCountedMap() {
+        for (Asset a : myAgentConcrete.getAssets()) {
+            ordersCounted.put(a, 0);
+        }
+    }
+
     private void setNewPrices() {
-        for (int i = 0 ; i < 6 ; i++) {
+        for (Asset a : myAgentConcrete.getAssets()) {
             Random r = new Random();
-            Integer priceChange = r.nextInt(8) - 4;
-            myAgentConcrete.changeAssetPrice(myAgentConcrete.getAssets().get(i), new BigDecimal(priceChange));
+            double minChange = -2.0f;
+            double maxChange = 2.0f;
+            double modifier = ordersCounted.get(a) * 0.05f;
+            minChange += modifier;
+            maxChange += modifier;
+            double priceChange = r.nextFloat() * (maxChange - minChange) + minChange;
+            myAgentConcrete.changeAssetPrice(a, new BigDecimal(priceChange)
+                    .setScale(2, BigDecimal.ROUND_HALF_UP));
         }
     }
 }
