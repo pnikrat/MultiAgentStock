@@ -214,21 +214,26 @@ public class StockTrader extends Agent {
     private TrendQuery findHighestDerivative(List<TrendQuery> checkedTrends) {
         BigDecimal highestDerivative = new BigDecimal(BigInteger.ZERO);
         TrendQuery trendWithHighestDerivative = null;
+        List<TrendQuery> topThree = new ArrayList<TrendQuery>();
         for (TrendQuery t: checkedTrends) {
             List<BigDecimal> trend = t.getTrend();
             if (trend.size() < 5) { // not enough data from historian -> choose randomly (have to buy sth at beginning)
                 Random r = new Random();
                 Integer randomTrend = r.nextInt(6);
                 trendWithHighestDerivative = checkedTrends.get(randomTrend);
-                break;
+                return trendWithHighestDerivative;
             }
             BigDecimal derivative = t.getCurrentPrice().subtract(trend.get(0));
             if (derivative.compareTo(highestDerivative) == 1) {
-                highestDerivative = derivative;
-                trendWithHighestDerivative = t;
+                if (topThree.size() < 3)
+                    topThree.add(t);
+                else
+                    break;
             }
         }
-        return trendWithHighestDerivative;
+        int maxBound = topThree.size();
+        Random r = new Random();
+        return topThree.get(r.nextInt(maxBound));
     }
 
     private Asset findHighestDerivativeAmongInventory(List<TrendQuery> checkedTrends) {
