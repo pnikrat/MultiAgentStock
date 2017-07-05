@@ -94,8 +94,8 @@ public class StockTraderGui extends JFrame {
         inventoryTableModel.removeAssetUnits(asset, asset.getNumberOfUnits(), true);
     }
 
-    public void updatePrices(Asset assetToUpdatePrice, BigDecimal difference) {
-        inventoryTableModel.changeAssetPrice(assetToUpdatePrice, difference);
+    public void updatePrices(Asset assetToUpdatePrice, BigDecimal lastPrice) {
+        inventoryTableModel.replaceAssetPrice(assetToUpdatePrice, lastPrice);
     }
 
     public List<Asset> getAssets() {

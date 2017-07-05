@@ -140,10 +140,13 @@ public class AssetInventoryTableModel extends AbstractTableModel {
     }
 
     public void changeAssetPrice(Asset asset, BigDecimal amount) {
-        BigDecimal currentPrice = getCurrentAssetValue(asset);
+        replaceAssetPrice(asset, getCurrentAssetValue(asset).add(amount));
+    }
+
+    public void replaceAssetPrice(Asset asset, BigDecimal amount) {
         Integer rowIndex = getRowByShortName(asset.getShortName());
         if (rowIndex != null)
-            setValueAt(currentPrice.add(amount), rowIndex, 2);
+            setValueAt(amount, rowIndex, 2);
     }
 
     public BigDecimal getCurrentAssetValue(Asset assetToCheck) {

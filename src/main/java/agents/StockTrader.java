@@ -156,12 +156,7 @@ public class StockTrader extends Agent {
     private void updatePrices(List<TrendQuery> checkedTrends) {
         for (TrendQuery t : checkedTrends) {
             BigDecimal lastPrice = t.getTrend().get(t.getTrend().size() - 1);
-            BigDecimal difference;
-            if (t.getTrend().size() > 1)
-                difference = lastPrice.subtract(t.getTrend().get(t.getTrend().size() - 2));
-            else
-                difference = lastPrice;
-            gui.updatePrices(t.getAsset(), difference);
+            gui.updatePrices(t.getAsset(), lastPrice);
         }
     }
 

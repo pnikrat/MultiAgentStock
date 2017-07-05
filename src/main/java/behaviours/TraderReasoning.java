@@ -52,7 +52,6 @@ public class TraderReasoning extends ParallelBehaviour {
         traderConditionsFulfilled = myAgentConcrete.checkSelfState();
         if (!traderConditionsFulfilled) {
             myAgentConcrete.setTradingStatus(true);
-            System.out.println("Starting...");
         }
         else {
 //            senderFinished = true;
@@ -101,7 +100,6 @@ public class TraderReasoning extends ParallelBehaviour {
             public boolean done() {
                 if (counterOfHistorianRequests >= NUMBER_OF_TREND_CHECKS) {
                     senderFinished = true;
-                    System.out.println("Sender finished!" + myAgentConcrete.getLocalName());
                     return true;
                 }
                 else
@@ -123,7 +121,6 @@ public class TraderReasoning extends ParallelBehaviour {
                             MessageTemplate.MatchConversationId("price-check" + myAgentConcrete.getLocalName());
                     ACLMessage response = myAgentConcrete.receive(mt);
                     if (response != null) {
-                        System.out.println("Historian responded " + myAgentConcrete.getLocalName());
                         List<TrendQuery> receivedTrends = null;
                         try {
                             receivedTrends = (List<TrendQuery>) response.getContentObject();
@@ -142,8 +139,6 @@ public class TraderReasoning extends ParallelBehaviour {
             public boolean done() {
                 if (counterOfHistorianResponds >= NUMBER_OF_TREND_CHECKS) {
                     receiverFinished = true;
-                    System.out.println("Receiver finished!" + myAgentConcrete.getLocalName());
-                    System.out.println("Trends list length: " + checkedTrends.size());
                     return true;
                 }
                 else
@@ -178,7 +173,6 @@ public class TraderReasoning extends ParallelBehaviour {
     @Override
     public int onEnd() {
         prepareReply();
-        System.out.println("Parallel behaviour finished.");
         return super.onEnd();
     }
 
