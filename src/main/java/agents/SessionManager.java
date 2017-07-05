@@ -34,7 +34,7 @@ public class SessionManager extends Agent {
         gui = new SessionManagerGui();
         gui.showGui();
 
-        addBehaviour(new ScheduleTradingPeriod(this, 20000));
+        addBehaviour(new ScheduleTradingPeriod(this, 10000));
     }
 
     @Override

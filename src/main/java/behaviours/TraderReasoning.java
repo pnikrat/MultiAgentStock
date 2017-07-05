@@ -54,8 +54,6 @@ public class TraderReasoning extends ParallelBehaviour {
             myAgentConcrete.setTradingStatus(true);
         }
         else {
-//            senderFinished = true;
-//            receiverFinished = true;
             myAgentConcrete.doDelete();
         }
     }

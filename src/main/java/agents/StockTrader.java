@@ -31,7 +31,6 @@ public class StockTrader extends Agent {
     private BigDecimal maximumLoss;
     private BigDecimal desiredGain;
     private BigDecimal currentMoney;
-    private BigDecimal checkedPrice;
     private boolean tradingStatus;
     private MessageTemplate tradingTemplate;
     private List<Asset> availableAssets;
@@ -83,13 +82,6 @@ public class StockTrader extends Agent {
 
     public List<Asset> getAvailableAssets() {
         return availableAssets;
-    }
-
-    public void setCheckedPrice(BigDecimal checkedPrice, Asset assetChecked) {
-        for (Asset a : availableAssets) {
-            if (a.equals(assetChecked))
-                a.setUnitValue(checkedPrice);
-        }
     }
 
     public boolean checkSelfState() {

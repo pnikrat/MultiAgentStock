@@ -24,10 +24,6 @@ public class AssetInventoryTableModel extends AbstractTableModel {
 
     }
 
-    public AssetInventoryTableModel(List<Asset> assets) {
-        this.assets = assets;
-    }
-
     public int getRowCount() {
         return assets.size();
     }
@@ -81,7 +77,7 @@ public class AssetInventoryTableModel extends AbstractTableModel {
         fireTableRowsInserted(currentSize, currentSize);
     }
 
-    public void removeRow(Asset assetRow) {
+    private void removeRow(Asset assetRow) {
         int currentSize = assets.size();
         assets.remove(assetRow);
         fireTableRowsDeleted(currentSize, currentSize);
@@ -91,7 +87,7 @@ public class AssetInventoryTableModel extends AbstractTableModel {
         return removeAssetUnitsCommon(assetToRemove, units, isSimple);
     }
 
-    public int removeAssetUnitsCommon(Asset assetToRemove, int units, boolean isSimple) {
+    private int removeAssetUnitsCommon(Asset assetToRemove, int units, boolean isSimple) {
         int soldUnits = units;
         List<Asset> assetsCopy = new ArrayList<Asset>(assets);
         for (Asset a : assetsCopy) {
@@ -114,11 +110,11 @@ public class AssetInventoryTableModel extends AbstractTableModel {
         return soldUnits;
     }
 
-    public void removeAssetUnitsSimpleVariant(Asset assetToRemove) {
+    private void removeAssetUnitsSimpleVariant(Asset assetToRemove) {
         removeRow(assetToRemove);
     }
 
-    public int removeAssetUnitsComplexVariant(Asset a, Integer rowIndex) {
+    private int removeAssetUnitsComplexVariant(Asset a, Integer rowIndex) {
         int soldUnits = a.getNumberOfUnits() / 2;
         if (soldUnits == 0)
             soldUnits = a.getNumberOfUnits();

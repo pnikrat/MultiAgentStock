@@ -11,7 +11,7 @@ public class MarketOfAssets {
     private List<Asset> assetsAvailableOnMarket = new ArrayList<Asset>();
     private String[] assetsNames = {"ALR", "ACP", "BZW", "KGH", "PKN", "PGN"};
     private String[] startPricesBase = {"45.68", "23.45", "34.67", "89.99", "67.34", "53.33"};
-    private int[] numberOfUnitsBase = {120, 145, 67, 27, 45, 99}; //{120, 145, 67, 27, 45, 99};
+    private int[] numberOfUnitsBase = {120, 145, 67, 27, 45, 99};
 
     public MarketOfAssets() {
         for (int i = 0 ; i < assetsNames.length ; i++) {

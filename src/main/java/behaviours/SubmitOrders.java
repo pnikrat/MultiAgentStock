@@ -17,11 +17,6 @@ import models.Order;
 public class SubmitOrders extends ContractNetResponder {
 
     private StockTrader myAgentConcrete;
-    private ACLMessage priceCheckMessage;
-    private ACLMessage savedCfp;
-    private Asset tradedAsset;
-    private AID CfpSender;
-    private SubmitOrders parentBehaviour = this;
 
     public SubmitOrders(Agent a, MessageTemplate mt) {
         super(a, mt);

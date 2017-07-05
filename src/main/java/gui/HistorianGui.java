@@ -33,7 +33,6 @@ public class HistorianGui extends JFrame {
         pricesChart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideE);
         pricesChart.getStyler().setToolTipsEnabled(true);
         pricesChart.getStyler().setHasAnnotations(true);
-        //pricesChart.getStyler().setXAxisTickMarkSpacingHint(15);
         startupData.addAll(assets);
         initChartData();
         initChartSeries();

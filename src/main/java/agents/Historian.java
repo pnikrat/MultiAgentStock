@@ -47,6 +47,7 @@ public class Historian extends Agent {
     protected void takeDown() {
         System.out.println("Historian agent going down");
         utils.deregisterService();
+        gui.dispose();
     }
 
     public TrendQuery getTrend(TrendQuery trendToCheck) {
@@ -67,17 +68,6 @@ public class Historian extends Agent {
     private void setStartupPrices() {
         MarketOfAssets market = new MarketOfAssets();
         assets.addAll(market.getAssetsOnMarket());
-    }
-
-    private Asset findAsset(Asset assetToFind) {
-        Asset foundAsset = null;
-        for (Asset a : assets) {
-            if (a.equals(assetToFind)) {
-                foundAsset = a;
-                break;
-            }
-        }
-        return foundAsset;
     }
 
     private void setPriceCheckTemplateAttributes() {
