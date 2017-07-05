@@ -29,9 +29,9 @@
                         <!--Maximum loss, Desired gain, Starting money (all with dot as decimal separator) -->
                         <argument>trader1:agents.StockTrader(2000.00, 8500.00, 5101.77);
                             trader2:agents.StockTrader(1500.00, 6500.00, 2456.78);
-                            <!--trader3:agents.StockTrader(10000.00, 35000.00, 17500.00);-->
-                            <!--trader4:agents.StockTrader(9000.00, 12000.00, 10300.00);-->
-                            <!--trader5:agents.StockTrader(5000.00, 20000.00, 17000.00);-->
+                            trader3:agents.StockTrader(10000.00, 35000.00, 17500.00);
+                            trader4:agents.StockTrader(9000.00, 12000.00, 10300.00);
+                            trader5:agents.StockTrader(5000.00, 20000.00, 17000.00);
                             manager:agents.SessionManager;
                             historian:agents.Historian</argument>
                     </arguments>

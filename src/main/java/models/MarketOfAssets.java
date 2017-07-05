@@ -9,14 +9,15 @@ import java.util.List;
  */
 public class MarketOfAssets {
     private List<Asset> assetsAvailableOnMarket = new ArrayList<Asset>();
+    private String[] assetsNames = {"ALR", "ACP", "BZW", "KGH", "PKN", "PGN"};
+    private String[] startPricesBase = {"45.68", "23.45", "34.67", "89.99", "67.34", "53.33"};
+    private int[] numberOfUnitsBase = {120, 145, 67, 27, 45, 99}; //{120, 145, 67, 27, 45, 99};
 
     public MarketOfAssets() {
-        assetsAvailableOnMarket.add(new Asset("ALR", new BigDecimal("45.68"), 210));
-        assetsAvailableOnMarket.add(new Asset("ACP", new BigDecimal("23.45"), 340));
-        assetsAvailableOnMarket.add(new Asset("BZW", new BigDecimal("34.67"), 134));
-        assetsAvailableOnMarket.add(new Asset("KGH", new BigDecimal("89.99"), 21));
-        assetsAvailableOnMarket.add(new Asset("PKN", new BigDecimal("67.34"), 87));
-        assetsAvailableOnMarket.add(new Asset("PGN", new BigDecimal("53.33"), 186));
+        for (int i = 0 ; i < assetsNames.length ; i++) {
+            assetsAvailableOnMarket.add(new Asset(assetsNames[i],
+                    new BigDecimal(startPricesBase[i]), numberOfUnitsBase[i]));
+        }
     }
 
     public List<Asset> getAssetsOnMarket() {

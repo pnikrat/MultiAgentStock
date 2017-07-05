@@ -87,22 +87,42 @@ public class AssetInventoryTableModel extends AbstractTableModel {
         fireTableRowsDeleted(currentSize, currentSize);
     }
 
-    public int removeAssetUnits(Asset assetToRemove, int units) {
+    public int removeAssetUnits(Asset assetToRemove, int units, boolean isSimple) {
+        return removeAssetUnitsCommon(assetToRemove, units, isSimple);
+    }
+
+    public int removeAssetUnitsCommon(Asset assetToRemove, int units, boolean isSimple) {
         int soldUnits = units;
         List<Asset> assetsCopy = new ArrayList<Asset>(assets);
         for (Asset a : assetsCopy) {
             if (a.equals(assetToRemove)) {
                 Integer rowIndex = getRowByShortName(a.getShortName());
-                if (a.getNumberOfUnits() - units <= 0) {
-                    soldUnits = a.getNumberOfUnits();
-                    removeRow(assetToRemove);
-                }
-                else {
-                    if (rowIndex != null)
+                if (rowIndex != null) {
+                    if (a.getNumberOfUnits() - units <= 0) {
+                        if (isSimple)
+                            removeAssetUnitsSimpleVariant(assetToRemove);
+                        else
+                            soldUnits = removeAssetUnitsComplexVariant(a, rowIndex);
+                    }
+                    else {
                         setValueAt(a.getNumberOfUnits() - units, rowIndex, 1);
+                    }
+                    break;
                 }
             }
         }
+        return soldUnits;
+    }
+
+    public void removeAssetUnitsSimpleVariant(Asset assetToRemove) {
+        removeRow(assetToRemove);
+    }
+
+    public int removeAssetUnitsComplexVariant(Asset a, Integer rowIndex) {
+        int soldUnits = a.getNumberOfUnits() / 2;
+        if (soldUnits == 0)
+            soldUnits = a.getNumberOfUnits();
+        setValueAt(a.getNumberOfUnits() - soldUnits, rowIndex, 1);
         return soldUnits;
     }
 

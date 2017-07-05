@@ -37,8 +37,7 @@ public class SessionManagerGui extends JFrame {
     }
 
     public int sellAsset(Asset asset, int units) {
-        int soldUnits = inventoryTableModel.removeAssetUnits(asset, units);
-        return soldUnits;
+        return inventoryTableModel.removeAssetUnits(asset, units, false);
     }
 
     public void buyAsset(Asset asset) {

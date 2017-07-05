@@ -52,4 +52,23 @@ public class SubmitOrders extends ContractNetResponder {
         }
         throw new FailureException("WrongObject");
     }
+
+    @Override
+    protected void handleRejectProposal(ACLMessage cfp, ACLMessage propose, ACLMessage reject) {
+        Order failedPropose = null;
+        try {
+            failedPropose = (Order) propose.getContentObject();
+        } catch (UnreadableException e) {
+            e.printStackTrace();
+        }
+        if (failedPropose != null) {
+            if (failedPropose.isBuy())
+                myAgentConcrete.appendLogMessage("Tried to buy " + failedPropose.getUnitsToTrade() + " units of "
+                    + failedPropose.getAssetToTrade().getShortName() + " stock. Order failed");
+        }
+        else {
+            myAgentConcrete.appendLogMessage("Order failed");
+        }
+        myAgentConcrete.setTradingStatus(false);
+    }
 }

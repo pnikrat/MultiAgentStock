@@ -91,7 +91,7 @@ public class StockTraderGui extends JFrame {
     }
 
     public void removeSoldAsset(Asset asset) {
-        inventoryTableModel.removeAssetUnits(asset, asset.getNumberOfUnits());
+        inventoryTableModel.removeAssetUnits(asset, asset.getNumberOfUnits(), true);
     }
 
     public void updatePrices(Asset assetToUpdatePrice, BigDecimal difference) {
