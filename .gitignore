@@ -10,6 +10,9 @@
 .idea/**/tasks.xml
 .idea/**/vcs.xml
 .idea/dictionaries
+.classpath
+.settings/**
+.project
 
 # Sensitive or high-churn files:
 .idea/**/dataSources/

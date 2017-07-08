@@ -232,6 +232,8 @@ public class StockTrader extends Agent {
             }
         }
         int maxBound = topThree.size();
+        if (maxBound == 0)
+        	return null;
         Random r = new Random();
         return topThree.get(r.nextInt(maxBound));
     }
